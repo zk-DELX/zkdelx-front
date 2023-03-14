@@ -5,15 +5,19 @@ import {
   CircleF,
 } from "@react-google-maps/api";
 import darkModeStyle from "../config/DarkMap.json";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
 
-const Home = () => {
+const Home = ({ setLocation, closeModal }) => {
   const [lat, setLat] = useState(40.73061);
   const [lng, setLng] = useState(-73.935242);
+
+  useEffect(() => {
+    setLocation(lat + " " + lng);
+  }, [lat, lng]);
 
   const libraries = useMemo(() => ["places"], []);
   const mapCenter = useMemo(() => ({ lat: lat, lng: lng }), [lat, lng]);
@@ -61,10 +65,9 @@ const Home = () => {
             onLoad={() => console.log("Marker Loaded")}
             draggable={true}
             onDragEnd={onMarkerDragEnd}
-            icon="https://i.ibb.co/1vh4rrN/pin.png"
           />
 
-          {[4000, 10000].map((radius, idx) => {
+          {[10000].map((radius, idx) => {
             return (
               <CircleF
                 key={idx}
@@ -108,10 +111,9 @@ const Home = () => {
             onLoad={() => console.log("Marker Loaded")}
             draggable={true}
             onDragEnd={onMarkerDragEnd}
-            icon="https://i.ibb.co/1vh4rrN/pin.png"
           />
 
-          {[4000, 10000].map((radius, idx) => {
+          {[10000].map((radius, idx) => {
             return (
               <CircleF
                 key={idx}
@@ -131,6 +133,7 @@ const Home = () => {
       <div>
         {/* render Places Auto Complete and pass custom handler which updates the state */}
         <PlacesAutocomplete
+          closeModal={closeModal}
           onAddressSelect={(address) => {
             getGeocode({ address: address }).then((results) => {
               const { lat, lng } = getLatLng(results[0]);
@@ -145,7 +148,7 @@ const Home = () => {
   );
 };
 
-const PlacesAutocomplete = ({ onAddressSelect }) => {
+const PlacesAutocomplete = ({ onAddressSelect, closeModal }) => {
   const {
     ready,
     value,
@@ -181,10 +184,6 @@ const PlacesAutocomplete = ({ onAddressSelect }) => {
     });
   };
 
-  const submitLocation = () => {
-    closeModal;
-  };
-
   return (
     <div>
       <p className="mt-4 mb-2 font-epilogue text-xl">
@@ -202,10 +201,10 @@ const PlacesAutocomplete = ({ onAddressSelect }) => {
       <div>
         <div className="mt-6 text-center pb-2">
           <div
-            onClick={() => submitLocation}
+            onClick={closeModal}
             className="py-3 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]"
           >
-            <p>Select this location</p>
+            <p>Select this area</p>
           </div>
         </div>
       </div>

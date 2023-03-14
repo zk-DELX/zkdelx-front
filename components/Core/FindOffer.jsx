@@ -13,6 +13,21 @@ function FindOffer() {
   const [token, setToken] = useState(0);
   const [location, setLocation] = useState("--");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [address, setAddress] = useState("--");
+
+  async function getAddressFromLatLng(latitude, longitude) {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.status === "OK") {
+      setAddress(data.results[0].formatted_address);
+      return data.results[0].formatted_address;
+    } else {
+      throw new Error(
+        `Unable to retrieve address for (${latitude}, ${longitude})`
+      );
+    }
+  }
 
   const handleClickModal = () => {
     setIsModalVisible(true);
@@ -24,7 +39,11 @@ function FindOffer() {
 
   useEffect(() => {
     setTotal(amount * priceinp + amount * priceinp * 0.015);
-  }, [priceinp, amount]);
+    if (location != "--") {
+      getAddressFromLatLng(location.split(" ")[0], location.split(" ")[1]);
+      console.log(location);
+    }
+  }, [priceinp, amount, location]);
 
   return (
     <div className="flex justify-center text-xl px-3 lg:px-0 pb-6">
@@ -151,9 +170,9 @@ function FindOffer() {
             <p className="px-[3.4rem]">Select Location</p>
           </div>
         </div>
-        <div className="mt-6 md:px-4 md:flex">
+        <div className="mt-6 md:px-4 ">
           <div>Selected Location : </div>
-          <div className="md:ml-2 text-[#5285F6] mt-2 md:mt-0">{location}</div>
+          <div className=" text-[#5285F6] mt-2 md:mt-2">{address}</div>
         </div>
         <div className="mt-4 md:px-4 md:flex">
           <div>Estimated Total : </div>
