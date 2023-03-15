@@ -58,11 +58,13 @@ const polyzk = {
 const defaultChains = [
   {
     ...scroll_alpha_testnet,
-    iconUrl: scroll,
+    iconUrl:
+      "https://raw.githubusercontent.com/zk-DELX/zkdelx-front/main/assets/scroll.png",
   },
   {
     ...polyzk,
-    iconUrl: polygon,
+    iconUrl:
+      "https://github.com/zk-DELX/zkdelx-front/blob/main/assets/polygon.png?raw=true",
   },
 ];
 
