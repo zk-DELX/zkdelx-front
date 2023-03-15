@@ -18,7 +18,8 @@
     "react-modal": "^3.16.1",
     "react-select": "^5.7.0",
     "use-places-autocomplete": "^4.0.0",
-    "wagmi": "^0.12.1"
+    "wagmi": "^0.12.1",
+    "web3": "^1.8.2"
   },
   "devDependencies": {
     "@types/node": "18.11.3",

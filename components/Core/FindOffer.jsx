@@ -6,13 +6,18 @@ import Image from "next/image";
 import USDT from "../../assets/USDT.png";
 import USDC from "../../assets/USDC.png";
 import DAI from "../../assets/DAI.png";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { getAccount, fetchBalance } from "@wagmi/core";
 
 function FindOffer() {
+  const account = getAccount();
+  const { openConnectModal } = useConnectModal();
+
   //step-1
   const [priceinp, setPriceinp] = useState("0");
   const [amount, setAmount] = useState("0");
   const [total, setTotal] = useState(0);
-  const [token, setToken] = useState(0);
+  const [token, setToken] = useState("");
   const [location, setLocation] = useState("--");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [address, setAddress] = useState("--");
@@ -30,6 +35,25 @@ function FindOffer() {
       );
     }
   }
+
+  /*  CHECK FOR USDC BALANCE IN SCROLL ALPHA TESTNET
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      async function checkBalance() {
+        if (account.status == "connected") {
+          const balance = await fetchBalance({
+            address: account.address,
+            token: "0x67aE69Fd63b4fc8809ADc224A9b82Be976039509",
+          });
+          console.log(balance);
+        }
+      }
+      checkBalance();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+  */
 
   const handleClickModal = () => {
     setIsModalVisible(true);
@@ -112,19 +136,20 @@ function FindOffer() {
               className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
               classNamePrefix="Select"
               components={{ Option, SingleValue }}
+              onChange={() => setToken}
               styles={{
                 control: (provided) => ({
                   ...provided,
-                  backgroundColor: "#131A2A", // Replace with your desired background color
+                  backgroundColor: "#131A2A",
                   cursor: "pointer",
                 }),
                 option: (provided) => ({
                   ...provided,
-                  color: "#000", // Replace with your desired option text color
+                  color: "#000",
                 }),
                 singleValue: (provided) => ({
                   ...provided,
-                  color: "#fff", // Replace with your desired text color
+                  color: "#fff",
                 }),
               }}
             />
@@ -192,8 +217,7 @@ function FindOffer() {
         <div className="mt-4 md:px-4 md:flex">
           <div>Estimated Total : </div>
           <div className="md:ml-2 text-[#5285F6] mt-2 md:mt-0">
-            {total.toFixed(2)}{" "}
-            {token == 0 ? <>USDT</> : token == 1 ? <>USDC</> : <>USD</>}
+            {total.toFixed(2)} <>USD</>
           </div>
         </div>
         <div className="text-gray-500 font-bold text-sm md:px-4">
@@ -202,7 +226,11 @@ function FindOffer() {
         <div>
           <div className="mt-6 text-center md:px-4 pb-2">
             <div className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]">
-              <div>Search</div>
+              {account.status == "connected" ? (
+                <div>Search</div>
+              ) : (
+                <div onClick={openConnectModal}>Connect Wallet</div>
+              )}
             </div>
           </div>
         </div>
