@@ -8,8 +8,6 @@ import {
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { mainnet } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-import polygon from "../assets/polygon.png";
-import scroll from "../assets/scroll.png";
 
 const scroll_alpha_testnet = {
   id: 534353,
@@ -86,6 +84,7 @@ function MyApp({ Component, pageProps }) {
     <>
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider
+          showRecentTransactions={true}
           chains={chains}
           modalSize="compact"
           theme={darkTheme({
