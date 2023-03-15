@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import MapModal from "./MapModal";
+import Select, { components } from "react-select";
 import { BsInfoCircleFill } from "react-icons/bs";
 import Image from "next/image";
 import USDT from "../../assets/USDT.png";
 import USDC from "../../assets/USDC.png";
+import DAI from "../../assets/DAI.png";
 
 function FindOffer() {
   //step-1
@@ -45,6 +47,42 @@ function FindOffer() {
     }
   }, [priceinp, amount, location]);
 
+  const Tokens = [
+    { value: "DAI", label: "DAI", image: DAI },
+    { value: "USDT", label: "USDT", image: USDT },
+    { value: "USDC", label: "USDC", image: USDC },
+  ];
+
+  const Option = (props) => {
+    return (
+      <components.Option {...props}>
+        <div className="flex">
+          <Image
+            src={props.data.image}
+            alt={props.data.value}
+            width="30"
+            height="30"
+            style={{ marginRight: "10px" }}
+          />
+          <div className="mt-1">{props.data.label}</div>
+        </div>
+      </components.Option>
+    );
+  };
+
+  const SingleValue = ({ children, data }) => (
+    <div className="flex text-white mt-[-36px] p-1">
+      <Image
+        src={data.image}
+        alt={data.value}
+        width="30"
+        height="30"
+        style={{ marginRight: "10px", color: "#fff" }}
+      />
+      <div className="mt-1">{children}</div>
+    </div>
+  );
+
   return (
     <div className="flex justify-center text-xl px-3 lg:px-0 pb-6">
       <div className="mt-[10%] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
@@ -69,50 +107,27 @@ function FindOffer() {
         <div className="md:flex justify-between mt-4 md:px-4">
           <p className="pt-2">Token</p>
           <div>
-            <div className="flex justify-center mt-2 md:mt-0">
-              <div
-                className={`flex space-x-3 bg-[#131A2A] p-2 border-[2px] ${
-                  token == 0 ? "border-[#5285F6]" : "border-[#1b2133]"
-                } rounded-l-[5px] hover:cursor-pointer`}
-                onClick={() => setToken(0)}
-              >
-                <Image
-                  src={USDT}
-                  alt={"USDT"}
-                  width={""}
-                  height={""}
-                  className={"w-6 h-6"}
-                />
-                <p className="">USDT</p>
-              </div>
-              <div>
-                <div
-                  className={` flex space-x-3 bg-[#131A2A] p-2 border-[2px] ${
-                    token == 1 ? "border-[#5285F6]" : "border-[#1b2133]"
-                  } hover:cursor-pointer `}
-                  onClick={() => setToken(1)}
-                >
-                  <Image
-                    src={USDC}
-                    alt={"USDC"}
-                    width={""}
-                    height={""}
-                    className={"w-6 h-6"}
-                  />
-                  <p className="">USDC</p>
-                </div>
-              </div>
-              <div>
-                <div
-                  className={`flex space-x-3 bg-[#131A2A] p-2 border-[2px] ${
-                    token == 2 ? "border-[#5285F6]" : "border-[#1b2133]"
-                  } rounded-r-[5px] hover:cursor-pointer`}
-                  onClick={() => setToken(2)}
-                >
-                  <p className="text-center mx-[0.12rem]">BOTH</p>
-                </div>
-              </div>
-            </div>
+            <Select
+              options={Tokens}
+              className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
+              classNamePrefix="Select"
+              components={{ Option, SingleValue }}
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  backgroundColor: "#131A2A", // Replace with your desired background color
+                  cursor: "pointer",
+                }),
+                option: (provided) => ({
+                  ...provided,
+                  color: "#000", // Replace with your desired option text color
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: "#fff", // Replace with your desired text color
+                }),
+              }}
+            />
           </div>
         </div>
         <div className="mt-6 md:flex justify-between ">
@@ -167,7 +182,7 @@ function FindOffer() {
             onClick={handleClickModal}
             className="text-center bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] md:px-2 py-2 hover:cursor-pointer text-md"
           >
-            <p className="px-[3.4rem]">Select Location</p>
+            <p className="px-[3.2rem]">Select Location</p>
           </div>
         </div>
         <div className="mt-6 md:px-4 ">

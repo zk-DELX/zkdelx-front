@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Logo from "../assets/logo.png";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 function Navbar() {
   return (
@@ -32,8 +33,17 @@ function Navbar() {
           </div>
         </div>
         <div className="mt-3 flex">
-          <div className="py-3 px-4 rounded-[15px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]">
-            <p>Connect Wallet</p>
+          <div className="mt-1 ">
+            <ConnectButton
+              accountStatus={{
+                smallScreen: "avatar",
+                largeScreen: "full",
+              }}
+              showBalance={{
+                smallScreen: false,
+                largeScreen: true,
+              }}
+            />
           </div>
         </div>
       </div>
