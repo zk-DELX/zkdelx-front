@@ -1,9 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Logo from "../assets/logo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { getAccount, fetchBalance } from "@wagmi/core";
+import Balancebtn from "./Buttons/Balancebtn";
 
 function Navbar() {
+  const [connected, setConnected] = useState(false);
+  const account = getAccount();
+
+  useEffect(() => {
+    if (account && account.status === "connected") {
+      setConnected(true);
+    } else {
+      setConnected(false);
+    }
+  }, [account.status]);
+
   return (
     <div className="font-epilogue mx-[1rem] my-4 lg:mx-[8rem]">
       <div className="flex justify-between">
@@ -32,8 +45,11 @@ function Navbar() {
             </p>
           </div>
         </div>
-        <div className="mt-3 flex">
-          <div className="mt-1 ">
+        <div className="mt-4 flex">
+          <div className="mr-3">
+            <Balancebtn />
+          </div>
+          <div className="">
             <ConnectButton
               accountStatus={{
                 smallScreen: "avatar",
@@ -41,7 +57,7 @@ function Navbar() {
               }}
               showBalance={{
                 smallScreen: false,
-                largeScreen: true,
+                largeScreen: false,
               }}
             />
           </div>

@@ -3,16 +3,10 @@ import MapModal from "./MapModal";
 import Select, { components } from "react-select";
 import { BsInfoCircleFill } from "react-icons/bs";
 import Image from "next/image";
-import USDT from "../../assets/USDT.png";
-import USDC from "../../assets/USDC.png";
-import DAI from "../../assets/DAI.png";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { getAccount, fetchBalance } from "@wagmi/core";
+import Searchbtn from "../Buttons/Searchbtn";
+import Tokens from "../../utils/TokensList";
 
 function FindOffer() {
-  const account = getAccount();
-  const { openConnectModal } = useConnectModal();
-
   //step-1
   const [priceinp, setPriceinp] = useState("0");
   const [amount, setAmount] = useState("0");
@@ -36,25 +30,6 @@ function FindOffer() {
     }
   }
 
-  /*  CHECK FOR USDC BALANCE IN SCROLL ALPHA TESTNET
-  useEffect(() => {
-    const intervalId = setInterval(async () => {
-      async function checkBalance() {
-        if (account.status == "connected") {
-          const balance = await fetchBalance({
-            address: account.address,
-            token: "0x67aE69Fd63b4fc8809ADc224A9b82Be976039509",
-          });
-          console.log(balance);
-        }
-      }
-      checkBalance();
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-  */
-
   const handleClickModal = () => {
     setIsModalVisible(true);
   };
@@ -70,12 +45,6 @@ function FindOffer() {
       console.log(location);
     }
   }, [priceinp, amount, location]);
-
-  const Tokens = [
-    { value: "DAI", label: "DAI", image: DAI },
-    { value: "USDT", label: "USDT", image: USDT },
-    { value: "USDC", label: "USDC", image: USDC },
-  ];
 
   const Option = (props) => {
     return (
@@ -226,11 +195,7 @@ function FindOffer() {
         <div>
           <div className="mt-6 text-center md:px-4 pb-2">
             <div className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]">
-              {account.status == "connected" ? (
-                <div>Search</div>
-              ) : (
-                <div onClick={openConnectModal}>Connect Wallet</div>
-              )}
+              <Searchbtn />
             </div>
           </div>
         </div>
