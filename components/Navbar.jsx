@@ -4,9 +4,12 @@ import Logo from "../assets/logo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getAccount, fetchBalance } from "@wagmi/core";
 import Balancebtn from "./Buttons/Balancebtn";
+import { GiHamburgerMenu } from "react-icons/gi";
 
 function Navbar() {
   const [connected, setConnected] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [page, setPage] = useState(0);
   const account = getAccount();
 
   useEffect(() => {
@@ -17,9 +20,11 @@ function Navbar() {
     }
   }, [account.status]);
 
+  function handleclick() {}
+
   return (
-    <div className="font-epilogue mx-[1rem] my-4 lg:mx-[8rem]">
-      <div className="flex justify-between">
+    <div className="font-epilogue mx-[1rem] my-4 xl:mx-[4rem]">
+      <div className="flex flex-row justify-between">
         <div className="flex space-x-20">
           <div>
             <Image
@@ -30,7 +35,7 @@ function Navbar() {
               className="mt-2"
             />
           </div>
-          <div className="hidden xl:flex space-x-2 text-xl font-kanit mt-3 ">
+          <div className="hidden xl:flex space-x-2 text-md lg:text-xl font-kanit mt-3 ">
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px]">
               Find an offer
             </p>
@@ -63,6 +68,27 @@ function Navbar() {
           </div>
         </div>
       </div>
+      <div className="flex justify-center">
+        <div
+          onClick={() => setVisible(!visible)}
+          className="bg-[#0D111C] p-3 border-[1px] border-[#1b2133] rounded-[10px] mt-8 xl:hidden w-[550px] flex justify-between font-kanit text-xl px-6"
+        >
+          Browse menu
+          <div className="mt-1">
+            <GiHamburgerMenu />
+          </div>
+        </div>
+      </div>
+      {visible && (
+        <div className="flex justify-center">
+          <div className="bg-[#0D111C] p-3 border-[1px] border-[#1b2133] rounded-[10px] mt-1 xl:hidden w-[550px]  font-kanit text-xl px-6">
+            <p>Find an offer</p>
+            <p className="mt-2">Create an offer</p>
+            <p className="mt-2">Transactions History</p>
+            <p className="mt-2">$DELX Token</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

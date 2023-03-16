@@ -78,7 +78,7 @@ function FindOffer() {
 
   return (
     <div className="flex justify-center text-xl px-3 lg:px-0 pb-6">
-      <div className="mt-[10%] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
+      <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
         <div className="flex flex-row justify-between">
           <div className="text-3xl">Find an offer</div>
           <div className="hover:cursor-pointer">
