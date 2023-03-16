@@ -207,7 +207,6 @@ function FindOffer() {
         onClose={handleCloseModal}
         className={isModalVisible ? "active" : ""}
       />
-      test
     </div>
   );
 }

@@ -92,68 +92,66 @@ function balancebtn() {
 
   return (
     <div>
-      {connected && (
-        <div className=" font-epilogue">
+      <div className=" font-epilogue">
+        <div
+          className="p-2 bg-[#1A1B1F] rounded-[12px] flex  hover:cursor-pointer border-[1px] border-[#1b2133]"
+          onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+        >
+          <FaCoins className="mr-2 mt-1" />
+          <p className="">Balances</p>
+        </div>
+        {isBalanceVisible && account.status == "connected" && (
           <div
-            className="p-2 bg-[#1A1B1F] rounded-[12px] flex  hover:cursor-pointer border-[1px] border-[#1b2133]"
+            className="fixed z-10 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 backdrop-blur-md flex justify-center items-center"
             onClick={() => setIsBalanceVisible(!isBalanceVisible)}
           >
-            <FaCoins className="mr-2 mt-1" />
-            <p className="">Balances</p>
-          </div>
-          {isBalanceVisible && (
-            <div
-              className="fixed z-10 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 backdrop-blur-md flex justify-center items-center"
-              onClick={() => setIsBalanceVisible(!isBalanceVisible)}
-            >
-              <div className="p-4 bg-[#1A1B1F] rounded-[15px] text-white  border-[0.1px] border-[#28292e] min-w-[340px]">
-                <div className="flex justify-between">
-                  <p className="text-xl font-bold font-kanit">
-                    Stable Coins Balances
-                  </p>
-                  <AiFillCloseCircle className="text-[22px] mt-[-1px] hover:cursor-pointer" />
-                </div>
-                <div className="flex mt-4 ">
-                  <Image
-                    src={DAI}
-                    alt={"dai"}
-                    width={35}
-                    height={35}
-                    className="mr-4"
-                  />
-                  <p className="text-xl font-bold mt-2">
-                    {balances.dai.formatted} DAI
-                  </p>
-                </div>
-                <div className="flex mt-4 ">
-                  <Image
-                    src={USDT}
-                    alt={"usdt"}
-                    width={35}
-                    height={35}
-                    className="mr-4"
-                  />
-                  <p className="text-xl font-bold mt-2">
-                    {balances.usdt.formatted} USDT
-                  </p>
-                </div>
-                <div className="flex mt-4 ">
-                  <Image
-                    src={USDC}
-                    alt={"usdc"}
-                    width={35}
-                    height={35}
-                    className="mr-4"
-                  />
-                  <p className="text-xl font-bold mt-2">
-                    {balances.usdc.formatted} USDC
-                  </p>
-                </div>
+            <div className="p-4 bg-[#1A1B1F] rounded-[15px] text-white  border-[0.1px] border-[#28292e] min-w-[340px]">
+              <div className="flex justify-between">
+                <p className="text-xl font-bold font-kanit">
+                  Stable Coins Balances
+                </p>
+                <AiFillCloseCircle className="text-[22px] mt-[-1px] hover:cursor-pointer" />
+              </div>
+              <div className="flex mt-4 ">
+                <Image
+                  src={DAI}
+                  alt={"dai"}
+                  width={35}
+                  height={35}
+                  className="mr-4"
+                />
+                <p className="text-xl font-bold mt-2">
+                  {balances.dai.formatted} DAI
+                </p>
+              </div>
+              <div className="flex mt-4 ">
+                <Image
+                  src={USDT}
+                  alt={"usdt"}
+                  width={35}
+                  height={35}
+                  className="mr-4"
+                />
+                <p className="text-xl font-bold mt-2">
+                  {balances.usdt.formatted} USDT
+                </p>
+              </div>
+              <div className="flex mt-4 ">
+                <Image
+                  src={USDC}
+                  alt={"usdc"}
+                  width={35}
+                  height={35}
+                  className="mr-4"
+                />
+                <p className="text-xl font-bold mt-2">
+                  {balances.usdc.formatted} USDC
+                </p>
               </div>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
