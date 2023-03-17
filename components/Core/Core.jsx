@@ -6,8 +6,10 @@ import Image from "next/image";
 import Searchbtn from "../Buttons/Searchbtn";
 import Tokens from "../../utils/TokensList";
 
-function FindOffer() {
+function Core() {
   //step-1
+  const [info, setInfo] = useState("real-time pool price avg.");
+  const [avg, setAvg] = useState(0);
   const [priceinp, setPriceinp] = useState("0");
   const [amount, setAmount] = useState("0");
   const [total, setTotal] = useState(0);
@@ -30,6 +32,24 @@ function FindOffer() {
     }
   }
 
+  async function extractStateFromLatLon(lat, lon) {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${apiKey}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.results.length > 0) {
+      const addressComponents = data.results[0].address_components;
+      const state = addressComponents.find((comp) =>
+        comp.types.includes("administrative_area_level_1")
+      );
+      return state ? state.short_name : null;
+    } else {
+      return null;
+    }
+  }
+
   const handleClickModal = () => {
     setIsModalVisible(true);
   };
@@ -39,10 +59,31 @@ function FindOffer() {
   };
 
   useEffect(() => {
+    async function fetchData() {
+      const state = await extractStateFromLatLon(
+        location.split(" ")[0],
+        location.split(" ")[1]
+      );
+      try {
+        const res = await fetch(
+          "https://zkdelx-backend-zvrz.vercel.app/queryprice/" + state
+        );
+        const newData = await res.json();
+        if (res.status === 500) {
+          console.log("no price found for this location");
+          setAvg(0);
+          setInfo("price data not availble for this location.");
+        } else {
+          setAvg(newData);
+          setInfo("real-time pool price avg.");
+        }
+      } catch (e) {}
+    }
+
+    fetchData();
     setTotal(amount * priceinp + amount * priceinp * 0.015);
     if (location != "--") {
       getAddressFromLatLng(location.split(" ")[0], location.split(" ")[1]);
-      console.log(location);
     }
   }, [priceinp, amount, location]);
 
@@ -86,10 +127,8 @@ function FindOffer() {
           </div>
         </div>
         <div className="text-center">
-          <div className="text-[#5285F6] mt-8">~0.43 USD/KWH</div>
-          <div className="text-gray-500 font-bold text-sm">
-            real-time pool price avg.
-          </div>
+          <div className="text-[#5285F6] mt-8">~{avg.toFixed(2)} USD/KWH</div>
+          <div className="text-gray-500 font-bold text-sm">{info}</div>
         </div>
         <div className="mt-8 flex justify-between ">
           <div>
@@ -211,4 +250,4 @@ function FindOffer() {
   );
 }
 
-export default FindOffer;
+export default Core;
