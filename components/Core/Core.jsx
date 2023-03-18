@@ -10,9 +10,6 @@ import Tokens from "../../utils/TokensList";
 import { useAccount } from "wagmi";
 import FormatWallet from "../../utils/FormatWallet";
 import GenerateofferID from "../../utils/GenerateOfferID";
-import USDT from "../../assets/USDT.png";
-import USDC from "../../assets/USDC.png";
-import DAI from "../../assets/DAI.png";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -98,12 +95,7 @@ function Core(props) {
   };
 
   const handleGoToSummary = () => {
-    if (
-      tokenco.length < 2 ||
-      priceco == 0 ||
-      amountco == 0 ||
-      location == "--"
-    ) {
+    if (priceco == 0 || amountco == 0 || location == "--") {
       notify("incomplete");
     } else {
       setReview(1);
@@ -113,7 +105,6 @@ function Core(props) {
   const handlebacktoCreate = () => {
     setPriceco(0);
     setAmountco(0);
-    setTokenco("");
     setReview(0);
   };
 
@@ -338,33 +329,7 @@ function Core(props) {
               dangerouslySetInnerHTML={{ __html: formattedWallet }}
             />
           </div>
-          <div className="md:flex justify-between mt-4 md:px-4">
-            <p className="pt-2">Accepted Token</p>
-            <div>
-              <Select
-                options={Tokens}
-                className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
-                classNamePrefix="Select"
-                components={{ Option, SingleValue }}
-                onChange={handleSelectChangeCo}
-                styles={{
-                  control: (provided) => ({
-                    ...provided,
-                    backgroundColor: "#131A2A",
-                    cursor: "pointer",
-                  }),
-                  option: (provided) => ({
-                    ...provided,
-                    color: "#000",
-                  }),
-                  singleValue: (provided) => ({
-                    ...provided,
-                    color: "#fff",
-                  }),
-                }}
-              />
-            </div>
-          </div>
+
           <div className="mt-6 md:flex justify-between ">
             <div className="flex md:block">
               <div className="md:px-4">Price Rate</div>
@@ -470,29 +435,7 @@ function Core(props) {
               dangerouslySetInnerHTML={{ __html: formattedWallet }}
             />
           </div>
-          <div className="flex justify-between mt-2 md:px-4">
-            <p className="pt-2">Accepted Token</p>
-            <div className="flex py-2">
-              {tokenco == "USDT" && (
-                <>
-                  <Image src={USDT} alt={"usdt"} className="w-6 h-6 mr-2" />
-                  <p>USDT</p>
-                </>
-              )}
-              {tokenco == "DAI" && (
-                <>
-                  <Image src={DAI} alt={"DAI"} className="w-6 h-6 mr-2" />
-                  <p>DAI</p>
-                </>
-              )}
-              {tokenco == "USDC" && (
-                <>
-                  <Image src={USDC} alt={"USDC"} className="w-6 h-6 mr-2" />
-                  <p>USDC</p>
-                </>
-              )}
-            </div>
-          </div>
+
           <div className="mt-4 flex justify-between ">
             <div className="flex md:block">
               <div className="md:px-4">Price Rate</div>
