@@ -6,7 +6,7 @@ import { getAccount, fetchBalance } from "@wagmi/core";
 import Balancebtn from "./Buttons/Balancebtn";
 import { GiHamburgerMenu } from "react-icons/gi";
 
-function Navbar() {
+function Navbar(props) {
   const [connected, setConnected] = useState(false);
   const [visible, setVisible] = useState(false);
   const [page, setPage] = useState(0);
@@ -36,10 +36,20 @@ function Navbar() {
             />
           </div>
           <div className="hidden xl:flex space-x-2 text-md lg:text-xl font-kanit mt-3 ">
-            <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px]">
+            <p
+              className={`hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] ${
+                props.step == "FO" ? "text-white" : "text-gray-400"
+              }`}
+              onClick={() => props.setStep("FO")}
+            >
               Find an offer
             </p>
-            <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
+            <p
+              className={`hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] ${
+                props.step == "CO" ? "text-white" : "text-gray-400"
+              }`}
+              onClick={() => props.setStep("CO")}
+            >
               Create an offer
             </p>
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
@@ -82,8 +92,10 @@ function Navbar() {
       {visible && (
         <div className="flex justify-center">
           <div className="bg-[#0D111C] p-3 border-[1px] border-[#1b2133] rounded-[10px] mt-1 xl:hidden w-[550px]  font-kanit text-xl px-6">
-            <p>Find an offer</p>
-            <p className="mt-2">Create an offer</p>
+            <p onClick={() => props.setStep("FO")}>Find an offer</p>
+            <p className="mt-2" onClick={() => props.setStep("CO")}>
+              Create an offer
+            </p>
             <p className="mt-2">Transactions History</p>
             <p className="mt-2">$DELX Token</p>
           </div>
