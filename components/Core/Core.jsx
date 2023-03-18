@@ -5,9 +5,19 @@ import { BsInfoCircleFill } from "react-icons/bs";
 import Image from "next/image";
 import Searchbtn from "../Buttons/Searchbtn";
 import Submitbtn from "../Buttons/Submitbtn";
+import Listofferbtn from "../Buttons/Listofferbtn";
 import Tokens from "../../utils/TokensList";
+import { useAccount } from "wagmi";
+import FormatWallet from "../../utils/FormatWallet";
+import GenerateofferID from "../../utils/GenerateOfferID";
+import USDT from "../../assets/USDT.png";
+import USDC from "../../assets/USDC.png";
+import DAI from "../../assets/DAI.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Core(props) {
+  const account = useAccount();
   //step-FO
   const [info, setInfo] = useState("real-time pool price avg.");
   const [avg, setAvg] = useState(0);
@@ -21,6 +31,11 @@ function Core(props) {
 
   //step-CO
   const [revenue, setRevenue] = useState(0);
+  const [review, setReview] = useState(0);
+  const [offerid, setOfferid] = useState(0);
+  const [amountco, setAmountco] = useState(0);
+  const [priceco, setPriceco] = useState(0);
+  const [tokenco, setTokenco] = useState("");
 
   async function getAddressFromLatLng(latitude, longitude) {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
@@ -34,6 +49,10 @@ function Core(props) {
         `Unable to retrieve address for (${latitude}, ${longitude})`
       );
     }
+  }
+
+  function handleSelectChangeCo(selectedOption) {
+    setTokenco(selectedOption.value);
   }
 
   async function extractStateFromLatLon(lat, lon) {
@@ -62,6 +81,42 @@ function Core(props) {
     setIsModalVisible(false);
   };
 
+  const notify = (opt) => {
+    if (opt == "incomplete") {
+      toast.error("Please fill all the fields before submitting !", {
+        position: "top-center",
+        text: "19px",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+  };
+
+  const handleGoToSummary = () => {
+    if (
+      tokenco.length < 2 ||
+      priceco == 0 ||
+      amountco == 0 ||
+      location == "--"
+    ) {
+      notify("incomplete");
+    } else {
+      setReview(1);
+    }
+  };
+
+  const handlebacktoCreate = () => {
+    setPriceco(0);
+    setAmountco(0);
+    setTokenco("");
+    setReview(0);
+  };
+
   useEffect(() => {
     async function fetchData() {
       const state = await extractStateFromLatLon(
@@ -86,11 +141,20 @@ function Core(props) {
 
     fetchData();
     setTotal(amount * priceinp + amount * priceinp * 0.015);
-    setRevenue(amount * priceinp - amount * priceinp * 0.015);
     if (location != "--") {
       getAddressFromLatLng(location.split(" ")[0], location.split(" ")[1]);
     }
   }, [priceinp, amount, location]);
+
+  useEffect(() => {
+    const randomString = GenerateofferID(7);
+    const id = `ID-${randomString}`;
+    setOfferid(id);
+  }, [review]);
+
+  useEffect(() => {
+    setRevenue(amountco * priceco - amountco * priceco * 0.015);
+  }, [amountco, priceco]);
 
   const Option = (props) => {
     return (
@@ -122,6 +186,10 @@ function Core(props) {
     </div>
   );
 
+  const formattedWallet = account.address
+    ? FormatWallet(account.address)
+    : "None";
+
   return (
     <div className="flex justify-center text-xl px-3 lg:px-0 pb-6">
       {props.step == "FO" && (
@@ -140,7 +208,10 @@ function Core(props) {
             <div>
               <div className="md:px-4 py-1">User ID</div>
             </div>
-            <div className="md:mr-4">0x12923</div>
+            <div
+              className="md:mr-4"
+              dangerouslySetInnerHTML={{ __html: formattedWallet }}
+            />
           </div>
           <div className="md:flex justify-between mt-4 md:px-4">
             <p className="pt-2">Token</p>
@@ -219,9 +290,9 @@ function Core(props) {
             <p className="md:px-4 py-2">Location Area</p>
             <div
               onClick={handleClickModal}
-              className="text-center bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] md:px-2 py-2 hover:cursor-pointer text-md"
+              className="text-center bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] md:px-4 py-2 hover:cursor-pointer text-md"
             >
-              <p className="px-[3.2rem]">Select Location</p>
+              <p className="">Select Location</p>
             </div>
           </div>
           <div className="mt-6 md:px-4 ">
@@ -246,7 +317,7 @@ function Core(props) {
           </div>
         </div>
       )}
-      {props.step == "CO" && (
+      {props.step == "CO" && review == 0 && (
         <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
             <div className="text-3xl">Create an offer</div>
@@ -262,7 +333,10 @@ function Core(props) {
             <div>
               <div className="md:px-4 py-1">User ID</div>
             </div>
-            <div className="md:mr-4">0x12923</div>
+            <div
+              className="md:mr-4"
+              dangerouslySetInnerHTML={{ __html: formattedWallet }}
+            />
           </div>
           <div className="md:flex justify-between mt-4 md:px-4">
             <p className="pt-2">Accepted Token</p>
@@ -272,7 +346,7 @@ function Core(props) {
                 className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
                 classNamePrefix="Select"
                 components={{ Option, SingleValue }}
-                onChange={() => setToken}
+                onChange={handleSelectChangeCo}
                 styles={{
                   control: (provided) => ({
                     ...provided,
@@ -307,7 +381,7 @@ function Core(props) {
                 onInput={(e) => {
                   e.target.value = e.target.value.replace(/,/g, ".");
                 }}
-                onChange={(e) => setPriceinp(e.target.value)}
+                onChange={(e) => setPriceco(e.target.value)}
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mr-2 mt-1">
                 <span className="text-gray-500 ">$</span>
@@ -330,7 +404,7 @@ function Core(props) {
                 onInput={(e) => {
                   e.target.value = e.target.value.replace(/,/g, ".");
                 }}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setAmountco(e.target.value)}
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mr-2 mt-1">
                 <span className="text-gray-500 ">KWH</span>
@@ -341,9 +415,9 @@ function Core(props) {
             <p className="md:px-4 py-2">Location</p>
             <div
               onClick={handleClickModal}
-              className="text-center bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] md:px-2 py-2 hover:cursor-pointer text-md"
+              className="text-center bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] md:px-4 py-2 hover:cursor-pointer text-md"
             >
-              <p className="px-[3.2rem]">Select Location</p>
+              <p className="">Select Location</p>
             </div>
           </div>
           <div className="mt-6 md:px-4 ">
@@ -361,8 +435,104 @@ function Core(props) {
           </div>
           <div>
             <div className="mt-6 text-center md:px-4 pb-2">
-              <div className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]">
+              <div
+                onClick={handleGoToSummary}
+                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]"
+              >
                 <Submitbtn />
+              </div>
+              <ToastContainer />
+            </div>
+          </div>
+        </div>
+      )}
+      {props.step == "CO" && review == 1 && (
+        <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
+          <div className="flex flex-row justify-between">
+            <div className="text-3xl">Offer Summary</div>
+            <div className="hover:cursor-pointer">
+              <BsInfoCircleFill />
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-between ">
+            <div>
+              <div className="md:px-4 py-1">Offer ID</div>
+            </div>
+            <div className="md:mr-4">{offerid}</div>
+          </div>
+          <div className="mt-4 flex justify-between ">
+            <div>
+              <div className="md:px-4 py-1">Seller ID</div>
+            </div>
+            <div
+              className="md:mr-4"
+              dangerouslySetInnerHTML={{ __html: formattedWallet }}
+            />
+          </div>
+          <div className="flex justify-between mt-2 md:px-4">
+            <p className="pt-2">Accepted Token</p>
+            <div className="flex py-2">
+              {tokenco == "USDT" && (
+                <>
+                  <Image src={USDT} alt={"usdt"} className="w-6 h-6 mr-2" />
+                  <p>USDT</p>
+                </>
+              )}
+              {tokenco == "DAI" && (
+                <>
+                  <Image src={DAI} alt={"DAI"} className="w-6 h-6 mr-2" />
+                  <p>DAI</p>
+                </>
+              )}
+              {tokenco == "USDC" && (
+                <>
+                  <Image src={USDC} alt={"USDC"} className="w-6 h-6 mr-2" />
+                  <p>USDC</p>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 flex justify-between ">
+            <div className="flex md:block">
+              <div className="md:px-4">Price Rate</div>
+            </div>
+            <div className="md:mr-4">
+              <p>${priceco} per KWH</p>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-between ">
+            <div className="flex md:block">
+              <div className="md:px-4">Max Amount</div>
+            </div>
+            <div className=" md:mr-4">
+              <p>{amountco} KWH</p>
+            </div>
+          </div>
+
+          <div className="mt-6 md:px-4 ">
+            <div>Offer Location : </div>
+            <div className=" text-[#5285F6] mt-2 md:mt-2">{address}</div>
+          </div>
+          <div className="mt-4 md:px-4 md:flex">
+            <div>Estimated Revenue : </div>
+            <div className="md:ml-2 text-[#5285F6] mt-2 md:mt-0">
+              {revenue.toFixed(2)} <>USD</>
+            </div>
+          </div>
+          <div className="text-gray-500 font-bold text-sm md:px-4">
+            After deducting 1.5% Platform fees.
+          </div>
+          <div>
+            <div className="mt-6 text-center md:px-4 pb-2 flex justify-evenly space-x-4">
+              <div
+                onClick={handlebacktoCreate}
+                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6] w-full"
+              >
+                Back
+              </div>
+              <div className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full">
+                <Listofferbtn />
               </div>
             </div>
           </div>
