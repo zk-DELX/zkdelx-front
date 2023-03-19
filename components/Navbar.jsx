@@ -23,7 +23,7 @@ function Navbar(props) {
   function handleclick() {}
 
   return (
-    <div className="font-epilogue mx-[1rem] my-4 xl:mx-[4rem]">
+    <div className="font-epilogue mx-[1rem] my-4 2xl:mx-[4rem]">
       <div className="flex flex-row justify-between">
         <div className="flex space-x-20">
           <div>
@@ -35,7 +35,7 @@ function Navbar(props) {
               className="mt-2"
             />
           </div>
-          <div className="hidden xl:flex space-x-2 text-md lg:text-xl font-kanit mt-3 ">
+          <div className="hidden 2xl:flex space-x-2 text-md lg:text-xl font-kanit mt-3 ">
             <p
               className={`hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] ${
                 props.step == "FO" ? "text-white" : "text-gray-400"
@@ -51,6 +51,9 @@ function Navbar(props) {
               onClick={() => props.setStep("CO")}
             >
               Create an offer
+            </p>
+            <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
+              My Offers
             </p>
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
               Transactions History
@@ -81,7 +84,7 @@ function Navbar(props) {
       <div className="flex justify-center">
         <div
           onClick={() => setVisible(!visible)}
-          className="bg-[#0D111C] p-3 border-[1px] border-[#1b2133] rounded-[10px] mt-8 xl:hidden w-[550px] flex justify-between font-kanit text-xl px-6"
+          className="bg-[#0D111C] p-3 border-[1px] border-[#1b2133] rounded-[10px] mt-8 2xl:hidden w-[550px] flex justify-between font-kanit text-xl px-6"
         >
           Browse menu
           <div className="mt-1">
@@ -96,6 +99,7 @@ function Navbar(props) {
             <p className="mt-2" onClick={() => props.setStep("CO")}>
               Create an offer
             </p>
+            <p className="mt-2">My Offers</p>
             <p className="mt-2">Transactions History</p>
             <p className="mt-2">$DELX Token</p>
           </div>

@@ -12,27 +12,39 @@ import FormatWallet from "../../utils/FormatWallet";
 import GenerateofferID from "../../utils/GenerateOfferID";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import USDT from "../../assets/USDT.png";
+import DAI from "../../assets/DAI.png";
+import USDC from "../../assets/USDC.png";
+import Offer from "../../components/Core/Offer";
 
 function Core(props) {
   const account = useAccount();
   //step-FO
   const [info, setInfo] = useState("real-time pool price avg.");
   const [avg, setAvg] = useState(0);
-  const [priceinp, setPriceinp] = useState("0");
-  const [amount, setAmount] = useState("0");
+  const [priceinp, setPriceinp] = useState(0);
+  const [amount, setAmount] = useState(0);
   const [total, setTotal] = useState(0);
   const [token, setToken] = useState("");
   const [location, setLocation] = useState("--");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [address, setAddress] = useState("--");
 
+  //step-FO-SO
+  const [soffer, setSoffer] = useState(false);
+  const [offers, setOffers] = useState([]);
   //step-CO
   const [revenue, setRevenue] = useState(0);
   const [review, setReview] = useState(0);
   const [offerid, setOfferid] = useState(0);
   const [amountco, setAmountco] = useState(0);
   const [priceco, setPriceco] = useState(0);
-  const [tokenco, setTokenco] = useState("");
+
+  function formatAddress(address) {
+    const addressArray = address.split(", ");
+    const addressFormatted = `${addressArray[1]}, ${addressArray[2]}`;
+    return addressFormatted;
+  }
 
   async function getAddressFromLatLng(latitude, longitude) {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
@@ -48,8 +60,8 @@ function Core(props) {
     }
   }
 
-  function handleSelectChangeCo(selectedOption) {
-    setTokenco(selectedOption.value);
+  function handleSelectChangeToken(selectedOption) {
+    setToken(selectedOption.value);
   }
 
   async function extractStateFromLatLon(lat, lon) {
@@ -101,6 +113,44 @@ function Core(props) {
       setReview(1);
     }
   };
+
+  async function fetchOffers() {
+    try {
+      const url = "https://zkdelx-backend.vercel.app/searchoffers";
+      const data = {
+        buyerAccount: "0x7395edc5677bc5c6a7e8848583456844567",
+        amount: 60,
+        price: 0.3,
+        location: "517 15th Ave E, Seattle, WA 98112, USA",
+      };
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          data: JSON.stringify(data),
+        },
+      });
+      const jsonData = await res.json();
+      setOffers(jsonData);
+    } catch {}
+
+    console.log(offers);
+  }
+
+  const handleGoToSearch = () => {
+    if (priceinp == 0 || amount == 0 || location == "--" || token == "") {
+      notify("incomplete");
+    } else {
+      fetchOffers();
+      setSoffer(1);
+    }
+  };
+
+  function handleBackToSO() {
+    setToken("");
+    setAmount(0);
+    setPriceinp(0);
+    setSoffer(false);
+  }
 
   const handlebacktoCreate = () => {
     setPriceco(0);
@@ -183,7 +233,7 @@ function Core(props) {
 
   return (
     <div className="flex justify-center text-xl px-3 lg:px-0 pb-6">
-      {props.step == "FO" && (
+      {!soffer && props.step == "FO" && (
         <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
             <div className="text-3xl">Find an offer</div>
@@ -212,7 +262,7 @@ function Core(props) {
                 className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
                 classNamePrefix="Select"
                 components={{ Option, SingleValue }}
-                onChange={() => setToken}
+                onChange={handleSelectChangeToken}
                 styles={{
                   control: (provided) => ({
                     ...provided,
@@ -301,15 +351,81 @@ function Core(props) {
           </div>
           <div>
             <div className="mt-6 text-center md:px-4 pb-2">
-              <div className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]">
+              <div
+                onClick={handleGoToSearch}
+                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]"
+              >
                 <Searchbtn />
               </div>
             </div>
           </div>
         </div>
       )}
-      {props.step == "CO" && review == 0 && (
+      {soffer && props.step == "FO" && (
         <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
+          <div className="flex flex-row justify-between">
+            <div className="text-3xl">Available Offers : 2</div>
+            <div className="hover:cursor-pointer">
+              <BsInfoCircleFill />
+            </div>
+          </div>
+          <div className="flex justify-between mt-6 md:px-4">
+            <p className="pt-2">Selected Token</p>
+            {token == "USDT" && (
+              <div className="flex p-2">
+                <Image src={USDT} alt="USDT" className="w-6 h-6 mr-2" />
+                <p>USDT</p>
+              </div>
+            )}
+            {token == "DAI" && (
+              <div className="flex p-2">
+                <Image src={DAI} alt="DAI" className="w-6 h-6 mr-2" />
+                <p>DAI</p>
+              </div>
+            )}
+            {token == "USDC" && (
+              <div className="flex p-2">
+                <Image src={USDC} alt="USDC" className="w-6 h-6 mr-2" />
+                <p>USDC</p>
+              </div>
+            )}
+          </div>
+          <div className="flex justify-between mt-2 md:px-4 text-[16px] md:text-xl ">
+            <div> Amount </div>
+            <div className=" text-[#5285F6] truncate">{amount} KWH</div>
+          </div>
+          <div className="flex justify-between mt-4 md:px-4 text-[16px] md:text-xl ">
+            <div> Location </div>
+            <div className=" text-[#5285F6] truncate">
+              {formatAddress(address)}
+            </div>
+          </div>
+          {offers && (
+            <div className="mt-6">
+              <Offer amount={amount} priceinp={priceinp} token={token} />
+              <Offer />
+            </div>
+          )}
+          {!offers && (
+            <div className="p-2 md:mx-4 flex justify-center bg-[#0f1421] mt-6 py-8 rounded-[10px] border-[1px] border-[#26365A]">
+              <p className="text-sm md:text-lg">
+                No offers available for this location at this time.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-6 text-center md:px-4 pb-2 flex justify-start">
+            <div
+              onClick={handleBackToSO}
+              className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6] w-[120px]"
+            >
+              <p>Back</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {props.step == "CO" && review == 0 && (
+        <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
             <div className="text-3xl">Create an offer</div>
             <div className="hover:cursor-pointer">
@@ -406,7 +522,6 @@ function Core(props) {
               >
                 <Submitbtn />
               </div>
-              <ToastContainer />
             </div>
           </div>
         </div>
@@ -488,6 +603,7 @@ function Core(props) {
         onClose={handleCloseModal}
         className={isModalVisible ? "active" : ""}
       />
+      <ToastContainer />
     </div>
   );
 }
