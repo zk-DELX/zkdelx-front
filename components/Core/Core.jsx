@@ -116,19 +116,15 @@ function Core(props) {
 
   async function fetchOffers() {
     try {
-      const url = "https://zkdelx-backend.vercel.app/searchoffers";
-      const data = {
+      const baseUrl = "https://zkdelx-backend.vercel.app/searchoffers";
+      const query = new URLSearchParams({
         buyerAccount: "0x7395edc5677bc5c6a7e8848583456844567",
         amount: 60,
         price: 0.3,
         location: "517 15th Ave E, Seattle, WA 98112, USA",
-      };
-      const res = await fetch(url, {
-        method: "GET",
-        headers: {
-          data: JSON.stringify(data),
-        },
       });
+      const url = `${baseUrl}?${query.toString()}`;
+      const res = await fetch(url);
       const jsonData = await res.json();
       setOffers(jsonData);
     } catch {}
