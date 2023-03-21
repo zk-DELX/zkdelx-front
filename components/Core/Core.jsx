@@ -114,29 +114,32 @@ function Core(props) {
     }
   };
 
-  async function fetchOffers() {
-    try {
-      const baseUrl = "https://zkdelx-backend.vercel.app/searchoffers";
-      const query = new URLSearchParams({
-        buyerAccount: "0x7395edc5677bc5c6a7e8848583456844567",
-        amount: 60,
-        price: 0.3,
-        location: "517 15th Ave E, Seattle, WA 98112, USA",
-      });
-      const url = `${baseUrl}?${query.toString()}`;
-      const res = await fetch(url);
-      const jsonData = await res.json();
-      setOffers(jsonData);
-    } catch {}
+  async function fetchOffers(address, amount, price) {
+    const addressFormatted = address.replace(/ /g, "-");
+    const baseUrl = `https://zkdelx-backend.vercel.app/searchoffers/${account.address}/${addressFormatted}/`;
+    console.log(baseUrl);
 
-    console.log(offers);
+    try {
+      const response = await fetch(baseUrl);
+      const data = await response.json();
+      if (response.status === 500) {
+        console.log("no offers here, try other location");
+        setOffers("");
+      } else {
+        setOffers(data);
+        console.log(offers);
+      }
+    } catch (error) {
+      console.error(error);
+      // Handle the error here, e.g. show an error message to the user
+    }
   }
 
   const handleGoToSearch = () => {
     if (priceinp == 0 || amount == 0 || location == "--" || token == "") {
       notify("incomplete");
     } else {
-      fetchOffers();
+      fetchOffers(address, amount, priceinp);
       setSoffer(1);
     }
   };
@@ -230,7 +233,7 @@ function Core(props) {
   return (
     <div className="flex justify-center text-xl px-3 lg:px-0 pb-6">
       {!soffer && props.step == "FO" && (
-        <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
+        <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
             <div className="text-3xl">Find an offer</div>
             <div className="hover:cursor-pointer">
@@ -358,7 +361,7 @@ function Core(props) {
         </div>
       )}
       {soffer && props.step == "FO" && (
-        <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
+        <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
             <div className="text-3xl">Available Offers : 2</div>
             <div className="hover:cursor-pointer">
@@ -396,13 +399,21 @@ function Core(props) {
               {formatAddress(address)}
             </div>
           </div>
-          {offers && (
-            <div className="mt-6">
-              <Offer amount={amount} priceinp={priceinp} token={token} />
-              <Offer />
-            </div>
-          )}
-          {!offers && (
+          <div className="mt-6">
+            {offers &&
+              offers.map((offer, index) => (
+                <Offer
+                  key={index}
+                  id={offer.id}
+                  amount={amount}
+                  price={offer.price}
+                  token={token}
+                  distance={offer.distance.distance.text}
+                  address={offer.location}
+                />
+              ))}
+          </div>
+          {offers == "" && (
             <div className="p-2 md:mx-4 flex justify-center bg-[#0f1421] mt-6 py-8 rounded-[10px] border-[1px] border-[#26365A]">
               <p className="text-sm md:text-lg">
                 No offers available for this location at this time.
@@ -523,7 +534,7 @@ function Core(props) {
         </div>
       )}
       {props.step == "CO" && review == 1 && (
-        <div className="mt-[1rem] lg:mt-[5%] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
+        <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
             <div className="text-3xl">Offer Summary</div>
             <div className="hover:cursor-pointer">

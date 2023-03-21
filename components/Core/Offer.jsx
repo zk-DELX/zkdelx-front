@@ -6,6 +6,15 @@ import { BiCurrentLocation } from "react-icons/bi";
 
 function Offer(props) {
   const [isopen, setIsopen] = useState(false);
+  function formatAddress(address) {
+    const addressArray = address.split(", ");
+    const addressFormatted = `${addressArray[1]}, ${addressArray[2]}`;
+    return addressFormatted;
+  }
+
+  function totalCalc(price, amount) {
+    return amount * price + amount * price * 0.015;
+  }
 
   return (
     <div>
@@ -16,10 +25,10 @@ function Offer(props) {
         >
           <div className="flex">
             <MdElectricCar className="mt-[4px] text-[24px] mr-1 md:mr-2 text-blue-500" />
-            <p className="mr-1 md:mr-2 ">Offer : ~2.9 km away</p>
+            <p className="mr-1 md:mr-2 ">Offer : ~{props.distance} away</p>
           </div>
           <div className="flex">
-            <p className="mr-1 md:mr-2">$0.24 / KWH</p>
+            <p className="mr-1 md:mr-2">${props.price.toFixed(2)} / KWH</p>
             <BsChevronDown className="text-blue-500 text-[24px] mt-[3px]" />
           </div>
         </div>
@@ -34,7 +43,7 @@ function Offer(props) {
               <div className="flex">
                 <MdElectricCar className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
                 <p className="text-[18px] flex mt-[2px]">
-                  <p className="font-bold mr-2 underline">Offer:</p> ID-TJKIFNR
+                  <p className="font-bold mr-2 underline">Offer:</p> {props.id}
                 </p>
               </div>
               <BsChevronUp className="text-blue-500 mt-[1px]  text-[24px]" />
@@ -43,27 +52,30 @@ function Offer(props) {
           <div className="flex mt-2">
             <MdAttachMoney className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
             <p className="text-[18px] flex mt-[2px]">
-              <p className="font-bold mr-2 underline">Price Rate:</p> $0.24 per
-              KWH
+              <p className="font-bold mr-2 underline">Price Rate:</p> $
+              {props.price} per KWH
             </p>
           </div>
           <div className="flex mt-2">
             <GiPathDistance className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
             <p className="text-[18px] flex mt-[2px]">
-              <p className="font-bold mr-2 underline">Distance:</p> ~2.9 km away
+              <p className="font-bold mr-2 underline">Distance:</p> ~
+              {props.distance} away
             </p>
           </div>
           <div className="flex mt-2">
             <BiCurrentLocation className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
             <p className="text-[18px] flex mt-[2px]">
-              <p className="font-bold mr-2 underline">Location:</p> New York, NY
-              10038
+              <p className="font-bold mr-2 underline">Location:</p>{" "}
+              {formatAddress(props.address)}
             </p>
           </div>
           <div className="flex justify-between px-1 mt-4">
             <div className="flex mt-2">
               <p className="text-xl font-bold flex ">Total :</p>
-              <p className="text-xl font-bold text-blue-500 ml-2 ">400 USDC</p>
+              <p className="text-xl font-bold text-blue-500 ml-2 ">
+                {totalCalc(props.price, props.amount).toFixed(2)} {props.token}
+              </p>
             </div>
             <div className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Buy this offer
