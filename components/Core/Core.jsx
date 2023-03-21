@@ -136,7 +136,7 @@ function Core(props) {
   }
 
   const handleGoToSearch = () => {
-    if (location == "--" || token == "") {
+    if (amount == 0 || location == "--" || token == "") {
       notify("incomplete");
     } else {
       fetchOffers(address, amount, priceinp);
