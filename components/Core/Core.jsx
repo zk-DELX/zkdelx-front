@@ -19,6 +19,8 @@ import Offer from "../../components/Core/Offer";
 
 function Core(props) {
   const account = useAccount();
+  const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
+  const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
   //step-FO
   const [info, setInfo] = useState("real-time pool price avg.");
   const [avg, setAvg] = useState(0);
@@ -116,18 +118,21 @@ function Core(props) {
 
   async function fetchOffers(address, amount, price) {
     const addressFormatted = address.replace(/ /g, "-");
-    const baseUrl = `https://zkdelx-backend.vercel.app/searchoffers/${account.address}/${addressFormatted}/`;
-    console.log(baseUrl);
+    var backendUrl = baseUrl + `/searchoffers/${account.address}/${addressFormatted}/${amount}`;
+    if (price != undefined) {
+      backendUrl = baseUrl + `/searchoffers/${account.address}/${addressFormatted}/${amount}/${price}`;
+    }
+    console.log(backendUrl);
 
     try {
-      const response = await fetch(baseUrl);
+      const response = await fetch(backendUrl);
       const data = await response.json();
       if (response.status === 500) {
         console.log("no offers here, try other location");
         setOffers("");
       } else {
         setOffers(data);
-        console.log(offers);
+        console.log('Offers: ', offers);
       }
     } catch (error) {
       console.error(error);
@@ -165,7 +170,7 @@ function Core(props) {
       );
       try {
         const res = await fetch(
-          "https://zkdelx-backend.vercel.app/queryprice/" + state
+          baseUrl + "/queryprice/" + state
         );
         const newData = await res.json();
         if (res.status === 500) {
@@ -363,7 +368,7 @@ function Core(props) {
       {soffer && props.step == "FO" && (
         <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
           <div className="flex flex-row justify-between">
-            <div className="text-3xl">Available Offers : 2</div>
+            <div className="text-3xl">Available Offers #: {offers.length}</div>
             <div className="hover:cursor-pointer">
               <BsInfoCircleFill />
             </div>
