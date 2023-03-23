@@ -42,7 +42,7 @@ function Navbar(props) {
               }`}
               onClick={() => props.setStep("FO")}
             >
-              Find an offer
+              Buy
             </p>
             <p
               className={`hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] ${
@@ -50,13 +50,13 @@ function Navbar(props) {
               }`}
               onClick={() => props.setStep("CO")}
             >
-              Create an offer
+              Sell
             </p>
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
               My Offers
             </p>
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
-              Transactions History
+              TX History
             </p>
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
               $DELX Token
@@ -95,12 +95,12 @@ function Navbar(props) {
       {visible && (
         <div className="flex justify-center">
           <div className="bg-[#0D111C] p-3 border-[1px] border-[#1b2133] rounded-[10px] mt-1 2xl:hidden w-[550px]  font-kanit text-xl px-6">
-            <p onClick={() => props.setStep("FO")}>Find an offer</p>
+            <p onClick={() => props.setStep("FO")}>Buy</p>
             <p className="mt-2" onClick={() => props.setStep("CO")}>
-              Create an offer
+              Sell
             </p>
             <p className="mt-2">My Offers</p>
-            <p className="mt-2">Transactions History</p>
+            <p className="mt-2">TX History</p>
             <p className="mt-2">$DELX Token</p>
           </div>
         </div>

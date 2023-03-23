@@ -31,6 +31,7 @@ function Core(props) {
   const [location, setLocation] = useState("--");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [address, setAddress] = useState("--");
+  // const [userid, setUserID] = useState("None");
 
   //step-FO-SO
   const [soffer, setSoffer] = useState(false);
@@ -41,6 +42,7 @@ function Core(props) {
   const [offerid, setOfferid] = useState(0);
   const [amountco, setAmountco] = useState(0);
   const [priceco, setPriceco] = useState(0);
+  const [status, setStatus] = useState("Listing")
 
   function formatAddress(address) {
     const addressArray = address.split(", ");
@@ -93,18 +95,27 @@ function Core(props) {
   };
 
   const notify = (opt) => {
-    if (opt == "incomplete") {
-      toast.error("Please fill all the fields before submitting !", {
-        position: "top-center",
-        text: "19px",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+    const notifyObj = {
+      position: "top-center",
+      text: "19px",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    };
+    switch (opt) {
+      case "incomplete":
+        toast.error("Please fill all the fields before submitting !", notifyObj);
+        break;
+      case "submitOfferSuccess":
+        toast.success("Submit offer success!", { ...notifyObj, theme: "light"});
+        break;
+      case "submitOfferConflict":
+        toast.error("Offer already submitted!", notifyObj);
+        break;
     }
   };
 
@@ -161,6 +172,37 @@ function Core(props) {
     setAmountco(0);
     setReview(0);
   };
+
+  const handleSubmitOffer = async () => {
+    const currentTime = new Date().getTime();
+    const offerObj = {
+      "offerID": offerid,
+      "sellerAccount": account.address,
+      "amount": +amountco,
+      "price": +priceco,
+      "location": address,
+      "submitTime": currentTime,
+      "status": status
+    }
+    console.log(offerObj);
+    const response = await fetch("/api/storeoffer", {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(offerObj), // body data type must match "Content-Type" header
+    });
+
+    if (response.status == 201) {
+      notify("submitOfferSuccess");
+    } else if (response.status == 409) {
+      notify("submitOfferConflict");
+    };
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -601,8 +643,10 @@ function Core(props) {
               >
                 Back
               </div>
-              <div className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full">
-                <Listofferbtn />
+              <div 
+                onClick={handleSubmitOffer}
+                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full">
+                <Submitbtn />
               </div>
             </div>
           </div>
