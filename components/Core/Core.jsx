@@ -174,6 +174,13 @@ function Core(props) {
   };
 
   const handleSubmitOffer = async () => {
+    // await submitOfferToChain();
+    await submitOfferToPolybase();
+  }
+  // TODO
+  // const submitOfferToChain = async () => { }
+
+  const submitOfferToPolybase = async () => {
     const currentTime = new Date().getTime();
     const offerObj = {
       "offerID": offerid,
