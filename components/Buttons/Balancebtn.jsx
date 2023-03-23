@@ -47,7 +47,7 @@ function balancebtn() {
           } catch (e) {
             console.log("fetching balance");
           }
-          console.log(balances);
+          // console.log(balances);
         }
 
         // For PolyZK
@@ -70,7 +70,7 @@ function balancebtn() {
               usdt: USDTBalance,
               usdc: USDCBalance,
             });
-            console.log(balances);
+            // console.log(balances);
           } catch (e) {
             console.log("fetching balance");
           }
