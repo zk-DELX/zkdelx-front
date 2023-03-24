@@ -13,6 +13,10 @@ module.exports = {
         destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/calceloffer",
       },
       {
+        source: "/api/acceptoffer",
+        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/acceptoffer",
+      },
+      {
         source: "/api/deleteoffer",
         destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/deleteoffer",
       },

@@ -189,9 +189,9 @@ function Offer(props) {
                   target="_blank"
                   className=" text-[#5285F6] mt-2 md:mt-2"
                   > Explore TX</a>
+              </div>  
+            )}
           </div>
-        )}
-      </div>
         </div>
       )}
     </div>

@@ -1,11 +1,28 @@
 import React, { useState } from "react";
+import { 
+  usePrepareContractWrite, 
+  useContractWrite, 
+  useWaitForTransaction,
+  useNetwork,
+  useAccount 
+} from 'wagmi'
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { MdElectricCar, MdAttachMoney } from "react-icons/md";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { GiPathDistance } from "react-icons/gi";
 import { BiCurrentLocation } from "react-icons/bi";
+import ABI from "../../../src/abi.json";
+import useDebounce from "../../../utils/useDebounce";
 
 function Offer(props) {
   const [isopen, setIsopen] = useState(false);
+  const account = useAccount();
+  const {chain, chains} = useNetwork();
+  const debouncedOfferid = useDebounce(props.id, 500);
+  const debouncedAmount = useDebounce(+props.amount, 500);
+  const debouncedPrice = useDebounce(+props.price * 100, 500);
+
   function formatAddress(address) {
     const addressArray = address.split(", ");
     const addressFormatted = `${addressArray[1]}, ${addressArray[2]}`;
@@ -14,6 +31,86 @@ function Offer(props) {
 
   function totalCalc(price, amount) {
     return amount * price + amount * price * 0.015;
+  }
+  const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
+  const { config, error } = usePrepareContractWrite({
+    address: contractAddress,
+    abi: ABI,
+    chainId: chain.id,
+    functionName: 'buyOffer',
+    args: [debouncedOfferid, +debouncedAmount],
+    enabled: Boolean(debouncedOfferid),
+  });
+
+  console.log({config});
+  console.log({error});
+
+  const notify = (opt) => {
+    const notifyObj = {
+      position: "top-center",
+      text: "19px",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    };
+    switch (opt) {
+      case "notFound":
+        toast.error(
+          "Offer not found !",
+          notifyObj
+        );
+        break;
+      case "buySuccessPolybase":
+        toast.success("Buy sucess in Polybase!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+      case "buySuccessChain":
+        toast.success("Bought offer on-chain!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+    }
+  };
+
+  const { data, write, isError } = useContractWrite(config);
+  const { isLoading, isSuccess } = useWaitForTransaction({
+  hash: data?.hash,
+  }) 
+
+  const handleBuyOffer = async () => {
+    const currentTime = new Date().getTime();
+    const offerBuyObj = {
+      offerID: props.id,
+      userAccount: account.address,
+      amount: +props.amount,
+      price: +props.price,
+      location: props.address,
+      updateTime: currentTime,
+    };
+    console.log(offerBuyObj);
+    const response = await fetch("/api/acceptoffer", {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify(offerBuyObj),
+    });
+  
+    if (response.status == 201) {
+      notify("buySuccessPolybase");
+    } else if (response.status == 404) {
+      notify("notFound");
+    }
   }
 
   return (
@@ -77,11 +174,28 @@ function Offer(props) {
                 {totalCalc(props.price, props.amount).toFixed(2)} {props.token}
               </p>
             </div>
-            <div className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
+            <div 
+              disabled={!write}
+              onClick={() => {write?.(); handleBuyOffer();}}
+              className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Buy this offer
             </div>
           </div>
+          <div>
+            {isSuccess && (
+              <div>
+                {notify("buySuccessChain")}
+                Successfully bought !
+                <a 
+                  href={`${chain.blockExplorers.etherscan.url}tx/${data?.hash}` } 
+                  target="_blank"
+                  className=" text-[#5285F6] mt-2 md:mt-2"
+                  > Explore TX</a>
+            </div>
+            )}
+          </div>
         </div>
+        
       )}
     </div>
   );
