@@ -19,7 +19,7 @@ function Offer(props) {
     <div>
       {!isopen && (
         <div
-          onClick={() => setIsopen(false)}
+          onClick={() => setIsopen(!isopen)}
           className="p-2 flex justify-between bg-[#0f1421] rounded-[10px] border-[1px] border-[#26365A] text-[15px] md:text-[18px] font-kanit hover:cursor-pointer mt-3"
         >
           <div className="flex">
@@ -37,7 +37,7 @@ function Offer(props) {
           <div>
             <div
               className="flex justify-between "
-              onClick={() => setIsopen(false)}
+              onClick={() => setIsopen(!isopen)}
             >
               <div className="flex">
                 <MdElectricCar className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
