@@ -58,7 +58,7 @@ function Offer(props) {
           <div className="flex mt-2">
             <MdOutlineElectricBolt className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
             <p className="text-[18px] flex mt-[2px]">
-              <p className="font-bold mr-2 underline">Amount:</p>
+              <p className="font-bold mr-2 underline">Max Amount:</p>
               {props.amount} KWH
             </p>
           </div>
@@ -71,18 +71,16 @@ function Offer(props) {
           <p className="mt-2 ml-2 truncate">{props.address}</p>
           <div className="flex justify-between px-1 mt-4">
             <div className="flex mt-2">
-              <p className="text-xl font-bold flex ">Total Paid:</p>
+              <p className="text-xl font-bold flex ">Total:</p>
               <p className="text-xl font-bold text-blue-500 ml-2 ">
                 {totalCalc(props.price, props.amount).toFixed(2)} USD
               </p>
             </div>
           </div>
-          <div className="flex justify-between mt-6 mx-2">
+          <div className="flex justify-between mt-4 mx-2">
+            <div className=""></div>
             <div className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
-              Cancel Offer
-            </div>
-            <div className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
-              Mark as completed
+              Cancel Listing
             </div>
           </div>
         </div>
