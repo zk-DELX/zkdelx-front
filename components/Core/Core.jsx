@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { 
+  usePrepareContractWrite, 
+  useContractWrite, 
+  useWaitForTransaction,
+  useNetwork 
+} from 'wagmi'
 import MapModal from "./MapModal";
 import Select, { components } from "react-select";
 import { BsInfoCircleFill } from "react-icons/bs";
@@ -21,6 +27,7 @@ function Core(props) {
   const account = useAccount();
   const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
   const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
+  const { chain, chains } = useNetwork();
   //step-FO
   const [info, setInfo] = useState("real-time pool price avg.");
   const [avg, setAvg] = useState(0);
@@ -161,24 +168,76 @@ function Core(props) {
   };
 
   function handleBackToSO() {
-    setToken("");
+    setToken(token);
     setAmount(0);
     setPriceinp(0);
     setSoffer(false);
   }
 
   const handlebacktoCreate = () => {
-    setPriceco(0);
-    setAmountco(0);
+    setPriceco(priceco);
+    setAmountco(amountco);
     setReview(0);
   };
 
   const handleSubmitOffer = async () => {
-    // await submitOfferToChain();
-    await submitOfferToPolybase();
+    // await submitOfferToPolybase();
+    await submitOfferToChain();
   }
   // TODO
-  // const submitOfferToChain = async () => { }
+  const submitOfferToChain = async () => {
+    const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
+    const chainName = chain.name;
+    // const paymentTokenAddress = 
+    console.log({offerid, amountco, priceco, token, location, chainName, contractAddress});
+
+    // const { config } = usePrepareContractWrite({
+    //   address: contractAddress,
+    //   abi: [     
+    //     {
+    //     name: 'submitOffer',
+    //     type: 'function',
+    //     stateMutability: 'nonpayable',
+    //     inputs: [
+    //       {
+    //         "internalType": "string",
+    //         "name": "_offerID",
+    //         "type": "string"
+    //       },
+    //       {
+    //         "internalType": "uint256",
+    //         "name": "_amount",
+    //         "type": "uint256"
+    //       },
+    //       {
+    //         "internalType": "uint256",
+    //         "name": "_price",
+    //         "type": "uint256"
+    //       },
+    //       {
+    //         "internalType": "address",
+    //         "name": "_paymentToken",
+    //         "type": "address"
+    //       },
+    //       {
+    //         "internalType": "string",
+    //         "name": "_location",
+    //         "type": "string"
+    //       }
+    //     ],
+    //     outputs: [],
+    //     },
+    //   ],
+    //   functionName: 'submitOffer',
+    //   args: [string,uint256,uint256,address,string],
+    //   enabled: Boolean(account.address),
+    //   })
+    //   const { data, write } = useContractWrite(config)
+     
+    //   const { isLoading, isSuccess } = useWaitForTransaction({
+    //   hash: data?.hash,
+    //   })
+   }
 
   const submitOfferToPolybase = async () => {
     const currentTime = new Date().getTime();
@@ -506,7 +565,33 @@ function Core(props) {
               dangerouslySetInnerHTML={{ __html: formattedWallet }}
             />
           </div>
-
+          <div className="md:flex justify-between mt-4 md:px-4">
+            <p className="pt-2">Token</p>
+            <div>
+              <Select
+                options={Tokens}
+                className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
+                classNamePrefix="Select"
+                components={{ Option, SingleValue }}
+                onChange={handleSelectChangeToken}
+                styles={{
+                  control: (provided) => ({
+                    ...provided,
+                    backgroundColor: "#131A2A",
+                    cursor: "pointer",
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    color: "#000",
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    color: "#fff",
+                  }),
+                }}
+              />
+            </div>
+          </div>
           <div className="mt-6 md:flex justify-between ">
             <div className="flex md:block">
               <div className="md:px-4">Price Rate</div>
@@ -517,7 +602,7 @@ function Core(props) {
             <div className="relative md:mr-4">
               <input
                 type="text"
-                placeholder="0"
+                placeholder={priceco}
                 className="text-gray-300 bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] w-full md:px-4 py-2 pl-3 pr-10"
                 inputMode="numeric"
                 onInput={(e) => {
@@ -540,7 +625,7 @@ function Core(props) {
             <div className="relative md:mr-4">
               <input
                 type=""
-                placeholder="0"
+                placeholder={amountco}
                 inputMode="numeric"
                 className="text-gray-300 bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] w-full md:px-4 py-2 pl-3 pr-10"
                 onInput={(e) => {
