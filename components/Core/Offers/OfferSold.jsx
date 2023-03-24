@@ -9,7 +9,7 @@ import { GiPathDistance } from "react-icons/gi";
 import { BiCurrentLocation } from "react-icons/bi";
 
 function Offer(props) {
-  const [isopen, setIsopen] = useState(true);
+  const [isopen, setIsopen] = useState(false);
 
   function totalCalc(price, amount) {
     return amount * price + amount * price * 0.015;
@@ -71,16 +71,10 @@ function Offer(props) {
           <p className="mt-2 ml-2 truncate">{props.address}</p>
           <div className="flex justify-between px-1 mt-4">
             <div className="flex mt-2">
-              <p className="text-xl font-bold flex ">Total Paid:</p>
+              <p className="text-xl font-bold flex ">Total Received:</p>
               <p className="text-xl font-bold text-blue-500 ml-2 ">
-                {totalCalc(props.price, props.amount).toFixed(2)} {props.token}
+                {totalCalc(props.price, props.amount).toFixed(2)} USD
               </p>
-            </div>
-          </div>
-          <div className="flex justify-between mt-4 mx-2">
-            <div className=""></div>
-            <div className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
-              Cancel Listing
             </div>
           </div>
         </div>

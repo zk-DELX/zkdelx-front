@@ -58,14 +58,14 @@ function Offer(props) {
           <div className="flex mt-2">
             <MdOutlineElectricBolt className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
             <p className="text-[18px] flex mt-[2px]">
-              <p className="font-bold mr-2 underline">Amount:</p>
+              <p className="font-bold mr-2 underline">Max Amount:</p>
               {props.amount} KWH
             </p>
           </div>
           <div className="flex mt-2">
             <BiCurrentLocation className="mt-[4px] mr-1 md:mr-2 text-blue-500  text-[24px]" />
             <p className="text-[18px] flex mt-[2px]">
-              <p className="font-bold mr-2 underline">Location:</p>{" "}
+              <p className="font-bold mr-2 underline">Location:</p>
             </p>
           </div>
           <p className="mt-2 ml-2 truncate">{props.address}</p>
@@ -77,12 +77,10 @@ function Offer(props) {
               </p>
             </div>
           </div>
-          <div className="flex justify-between mt-6 mx-2">
+          <div className="flex justify-between mt-4 mx-2">
+            <div className=""></div>
             <div className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
-              Cancel Offer
-            </div>
-            <div className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
-              Mark as completed
+              Cancel Listing
             </div>
           </div>
         </div>

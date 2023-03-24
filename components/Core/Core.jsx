@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { 
-  usePrepareContractWrite, 
-  useContractWrite, 
+import {
+  usePrepareContractWrite,
+  useContractWrite,
   useWaitForTransaction,
-  useNetwork 
-} from 'wagmi'
+  useNetwork,
+} from "wagmi";
 import MapModal from "./MapModal";
 import Select, { components } from "react-select";
 import { BsInfoCircleFill } from "react-icons/bs";
@@ -23,6 +23,7 @@ import DAI from "../../assets/DAI.png";
 import USDC from "../../assets/USDC.png";
 import Offer from "./Offers/Offer";
 import MyOffer from "./MyOffers";
+import TXHistory from "./TXHistory";
 
 function Core(props) {
   const account = useAccount();
@@ -194,17 +195,25 @@ function Core(props) {
   const handleSubmitOffer = async () => {
     // await submitOfferToPolybase();
     await submitOfferToChain();
-  }
+  };
   // TODO
   const submitOfferToChain = async () => {
     const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
     const chainName = chain.name;
-    // const paymentTokenAddress = 
-    console.log({offerid, amountco, priceco, token, location, chainName, contractAddress});
+    // const paymentTokenAddress =
+    console.log({
+      offerid,
+      amountco,
+      priceco,
+      token,
+      location,
+      chainName,
+      contractAddress,
+    });
 
     // const { config } = usePrepareContractWrite({
     //   address: contractAddress,
-    //   abi: [     
+    //   abi: [
     //     {
     //     name: 'submitOffer',
     //     type: 'function',
@@ -244,11 +253,11 @@ function Core(props) {
     //   enabled: Boolean(account.address),
     //   })
     //   const { data, write } = useContractWrite(config)
-     
+
     //   const { isLoading, isSuccess } = useWaitForTransaction({
     //   hash: data?.hash,
     //   })
-   }
+  };
 
   const submitOfferToPolybase = async () => {
     const currentTime = new Date().getTime();
@@ -749,6 +758,7 @@ function Core(props) {
         </div>
       )}
       {props.step == "MO" && <MyOffer />}
+      {props.step == "TH" && <TXHistory />}
       <MapModal
         location={location}
         setLocation={setLocation}

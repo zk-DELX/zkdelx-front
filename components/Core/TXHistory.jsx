@@ -1,37 +1,31 @@
 import React, { useState, useEffect } from "react";
-import OfferPending from "./Offers/OfferPending";
-import OfferCreated from "./Offers/OfferCreated";
+import OfferSold from "./Offers/OfferSold";
+import OfferBought from "./Offers/OfferSold";
 import { useAccount } from "wagmi";
 import { BsInfoCircleFill } from "react-icons/bs";
 
-function MyOffers() {
+function TXHistory() {
   const account = useAccount();
   const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
   const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
 
-  const [page, setPage] = useState("pending");
+  const [page, setPage] = useState("purchased");
   const [offers, setOffers] = useState("");
   const [listings, setListings] = useState("");
-
-  function formatAddress(address) {
-    const addressArray = address.split(", ");
-    const addressFormatted = `${addressArray[1]}, ${addressArray[2]}`;
-    return addressFormatted;
-  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const test = await fetch(
           baseUrl +
-            "/queryinprocessoffers/0x4726a2FBcb2844beF75979dcFF50b3AC8F50AC53"
+            "/queryhistoricaloffers/0x50aC41266d9D3445c707313873a9DB3be63a5257"
         );
         const response = await fetch(
-          baseUrl + "/queryinprocessoffers/" + account.address
+          baseUrl + "/queryhistoricaloffers/" + account.address
         );
         const data = await response.json();
-        setOffers(data.buyOffers);
-        setListings(data.sellOffers);
+        setOffers(data.boughtOffers);
+        setListings(data.soldOffers);
       } catch {
         (e) => console.log(e);
       }
@@ -43,49 +37,49 @@ function MyOffers() {
     <div>
       <div className=" mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
         <div className="flex flex-row justify-between">
-          <div className="text-3xl">My Offers</div>
+          <div className="text-3xl">Transactions History</div>
           <div className="hover:cursor-pointer">
             <BsInfoCircleFill />
           </div>
         </div>
         <div className="flex justify-between flex-row mt-8">
           <div
-            onClick={() => setPage("pending")}
+            onClick={() => setPage("purchased")}
             className={`flex text-[17px] md:text-2xl p-2 md:p-4 hover:cursor-pointer ${
-              page == "pending"
+              page == "purchased"
                 ? "border-[1px] border-[#5285F6] rounded-md"
                 : "text-gray-400"
             } `}
           >
-            Pending Offers
+            Offers Purchased
             <p className="ml-3 text-[#5285F6] font-bold text-[17px]">
               {offers.length > 0 ? offers.length : <p>0</p>}
             </p>
           </div>
           <div
-            onClick={() => setPage("created")}
+            onClick={() => setPage("sold")}
             className={`flex text-[17px] md:text-2xl p-2 md:p-4 hover:cursor-pointer ${
-              page == "created"
+              page == "sold"
                 ? "border-[1px] border-[#5285F6] rounded-md"
                 : "text-gray-400"
             }  `}
           >
-            Created Offers
+            Offers Sold
             <p className="ml-3 text-[#5285F6] font-bold text-[17px]">
               {listings.length > 0 ? listings.length : <p>0</p>}
             </p>
           </div>
         </div>
-        {offers == "" && page == "pending" && (
+        {offers == "" && page == "purchased" && (
           <div className="p-2 px-4 flex justify-center bg-[#0f1421] mt-6 py-8 rounded-[10px] border-[1px] border-[#26365A]">
-            <p className="text-sm md:text-lg">You have no pending offers.</p>
+            <p className="text-sm md:text-lg">You have no purchased offers.</p>
           </div>
         )}
 
         {offers &&
-          page == "pending" &&
+          page == "purchased" &&
           offers.map((offer, index) => (
-            <OfferPending
+            <OfferBought
               key={index}
               id={offer.data.id}
               amount={offer.data.amount}
@@ -95,21 +89,21 @@ function MyOffers() {
           ))}
 
         {listings &&
-          page == "created" &&
+          page == "sold" &&
           listings.map((offer, index) => (
-            <OfferCreated
+            <OfferSold
               key={index}
               id={offer.data.id}
-              amount={offer.data.amount}
+              amount={offer.data.acceptAmount}
               price={offer.data.price}
               address={offer.data.location}
             />
           ))}
 
-        {listings == "" && page == "created" && (
+        {listings == "" && page == "sold" && (
           <div className="p-2 px-4 flex justify-center bg-[#0f1421] mt-6 py-8 rounded-[10px] border-[1px] border-[#26365A]">
             <p className="text-sm md:text-lg">
-              You haven't created any offers yet.
+              You haven't sold any offers yet.
             </p>
           </div>
         )}
@@ -118,4 +112,4 @@ function MyOffers() {
   );
 }
 
-export default MyOffers;
+export default TXHistory;
