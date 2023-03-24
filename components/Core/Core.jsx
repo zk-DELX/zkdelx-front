@@ -736,9 +736,6 @@ function Core(props) {
               {revenue.toFixed(2)} <>USD</>
             </div>
           </div>
-          <div className="text-gray-500 font-bold text-sm md:px-4">
-            After deducting 1.5% Platform fees.
-          </div>
           <div>
             <div className="mt-6 text-center md:px-4 pb-2 flex justify-evenly space-x-4">
               <div
