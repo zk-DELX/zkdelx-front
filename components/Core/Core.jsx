@@ -15,7 +15,8 @@ import "react-toastify/dist/ReactToastify.css";
 import USDT from "../../assets/USDT.png";
 import DAI from "../../assets/DAI.png";
 import USDC from "../../assets/USDC.png";
-import Offer from "../../components/Core/Offer";
+import Offer from "./Offers/Offer";
+import MyOffer from "./MyOffers";
 
 function Core(props) {
   const account = useAccount();
@@ -42,7 +43,7 @@ function Core(props) {
   const [offerid, setOfferid] = useState(0);
   const [amountco, setAmountco] = useState(0);
   const [priceco, setPriceco] = useState(0);
-  const [status, setStatus] = useState("Listing")
+  const [status, setStatus] = useState("Listing");
 
   function formatAddress(address) {
     const addressArray = address.split(", ");
@@ -108,10 +109,16 @@ function Core(props) {
     };
     switch (opt) {
       case "incomplete":
-        toast.error("Please fill all the fields before submitting !", notifyObj);
+        toast.error(
+          "Please fill all the fields before submitting !",
+          notifyObj
+        );
         break;
       case "submitOfferSuccess":
-        toast.success("Submit offer success!", { ...notifyObj, theme: "light"});
+        toast.success("Submit offer success!", {
+          ...notifyObj,
+          theme: "light",
+        });
         break;
       case "submitOfferConflict":
         toast.error("Offer already submitted!", notifyObj);
@@ -129,9 +136,13 @@ function Core(props) {
 
   async function fetchOffers(address, amount, price) {
     const addressFormatted = address.replace(/ /g, "-");
-    var backendUrl = baseUrl + `/searchoffers/${account.address}/${addressFormatted}/${amount}`;
+    var backendUrl =
+      baseUrl +
+      `/searchoffers/${account.address}/${addressFormatted}/${amount}`;
     if (price != undefined) {
-      backendUrl = baseUrl + `/searchoffers/${account.address}/${addressFormatted}/${amount}/${price}`;
+      backendUrl =
+        baseUrl +
+        `/searchoffers/${account.address}/${addressFormatted}/${amount}/${price}`;
     }
     console.log(backendUrl);
 
@@ -143,7 +154,7 @@ function Core(props) {
         setOffers("");
       } else {
         setOffers(data);
-        console.log('Offers: ', offers);
+        console.log("Offers: ", offers);
       }
     } catch (error) {
       console.error(error);
@@ -183,14 +194,14 @@ function Core(props) {
   const submitOfferToPolybase = async () => {
     const currentTime = new Date().getTime();
     const offerObj = {
-      "offerID": offerid,
-      "sellerAccount": account.address,
-      "amount": +amountco,
-      "price": +priceco,
-      "location": address,
-      "submitTime": currentTime,
-      "status": status
-    }
+      offerID: offerid,
+      sellerAccount: account.address,
+      amount: +amountco,
+      price: +priceco,
+      location: address,
+      submitTime: currentTime,
+      status: status,
+    };
     console.log(offerObj);
     const response = await fetch("/api/storeoffer", {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -198,7 +209,7 @@ function Core(props) {
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
       headers: {
         "Content-Type": "application/json",
-        'Access-Control-Allow-Origin': '*',
+        "Access-Control-Allow-Origin": "*",
         // 'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: JSON.stringify(offerObj), // body data type must match "Content-Type" header
@@ -208,8 +219,8 @@ function Core(props) {
       notify("submitOfferSuccess");
     } else if (response.status == 409) {
       notify("submitOfferConflict");
-    };
-  }
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -218,9 +229,7 @@ function Core(props) {
         location.split(" ")[1]
       );
       try {
-        const res = await fetch(
-          baseUrl + "/queryprice/" + state
-        );
+        const res = await fetch(baseUrl + "/queryprice/" + state);
         const newData = await res.json();
         if (res.status === 500) {
           console.log("no price found for this location");
@@ -399,9 +408,6 @@ function Core(props) {
               {total.toFixed(2)} <>USD</>
             </div>
           </div>
-          <div className="text-gray-500 font-bold text-sm md:px-4">
-            Including 1.5% Platform fees.
-          </div>
           <div>
             <div className="mt-6 text-center md:px-4 pb-2">
               <div
@@ -572,9 +578,6 @@ function Core(props) {
               {revenue.toFixed(2)} <>USD</>
             </div>
           </div>
-          <div className="text-gray-500 font-bold text-sm md:px-4">
-            After deducting 1.5% Platform fees.
-          </div>
           <div>
             <div className="mt-6 text-center md:px-4 pb-2">
               <div
@@ -650,15 +653,17 @@ function Core(props) {
               >
                 Back
               </div>
-              <div 
+              <div
                 onClick={handleSubmitOffer}
-                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full">
+                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full"
+              >
                 <Submitbtn />
               </div>
             </div>
           </div>
         </div>
       )}
+      {props.step == "MO" && <MyOffer />}
       <MapModal
         location={location}
         setLocation={setLocation}
