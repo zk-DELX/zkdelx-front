@@ -45,7 +45,7 @@ function TXHistory() {
         <div className="flex justify-between flex-row mt-8">
           <div
             onClick={() => setPage("purchased")}
-            className={`flex text-[17px] md:text-2xl p-2 md:p-4 hover:cursor-pointer ${
+            className={`w-[50%] flex text-[17px] md:text-xl p-2 md:p-4 hover:cursor-pointer ${
               page == "purchased"
                 ? "border-[1px] border-[#5285F6] rounded-md"
                 : "text-gray-400"
@@ -58,7 +58,7 @@ function TXHistory() {
           </div>
           <div
             onClick={() => setPage("sold")}
-            className={`flex text-[17px] md:text-2xl p-2 md:p-4 hover:cursor-pointer ${
+            className={`w-[50%]  flex text-[17px] md:text-xl p-2 md:p-4 hover:cursor-pointer ${
               page == "sold"
                 ? "border-[1px] border-[#5285F6] rounded-md"
                 : "text-gray-400"

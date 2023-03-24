@@ -51,7 +51,7 @@ function MyOffers() {
         <div className="flex justify-between flex-row mt-8">
           <div
             onClick={() => setPage("pending")}
-            className={`flex text-[17px] md:text-2xl p-2 md:p-4 hover:cursor-pointer ${
+            className={`w-[50%]  flex text-[17px] md:text-xl p-2 md:p-4 hover:cursor-pointer ${
               page == "pending"
                 ? "border-[1px] border-[#5285F6] rounded-md"
                 : "text-gray-400"
@@ -64,7 +64,7 @@ function MyOffers() {
           </div>
           <div
             onClick={() => setPage("created")}
-            className={`flex text-[17px] md:text-2xl p-2 md:p-4 hover:cursor-pointer ${
+            className={`w-[50%]  flex text-[17px] md:text-xl p-2 md:p-4 hover:cursor-pointer ${
               page == "created"
                 ? "border-[1px] border-[#5285F6] rounded-md"
                 : "text-gray-400"
