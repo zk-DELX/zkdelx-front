@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useNetwork,
-} from "wagmi";
 import MapModal from "./MapModal";
 import Select, { components } from "react-select";
 import { BsInfoCircleFill } from "react-icons/bs";
 import Image from "next/image";
 import Searchbtn from "../Buttons/Searchbtn";
 import Submitbtn from "../Buttons/Submitbtn";
-import Listofferbtn from "../Buttons/Listofferbtn";
 import Tokens from "../../utils/TokensList";
 import { useAccount } from "wagmi";
 import FormatWallet from "../../utils/FormatWallet";
@@ -22,6 +15,7 @@ import USDT from "../../assets/USDT.png";
 import DAI from "../../assets/DAI.png";
 import USDC from "../../assets/USDC.png";
 import Offer from "./Offers/Offer";
+import OfferSubmit from "./Offers/OfferSubmit";
 import MyOffer from "./MyOffers";
 import TXHistory from "./TXHistory";
 
@@ -29,7 +23,7 @@ function Core(props) {
   const account = useAccount();
   const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
   const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
-  const { chain, chains } = useNetwork();
+
   //step-FO
   const [info, setInfo] = useState("real-time pool price avg.");
   const [avg, setAvg] = useState(0);
@@ -122,14 +116,20 @@ function Core(props) {
           notifyObj
         );
         break;
-      case "submitOfferSuccess":
-        toast.success("Submit offer success!", {
+      case "submitToPolybaseSuccess":
+        toast.success("Submitted to Polybase!", {
           ...notifyObj,
           theme: "light",
         });
         break;
-      case "submitOfferConflict":
+      case "submitToPolybaseConflict":
         toast.error("Offer already submitted!", notifyObj);
+        break;
+      case "submitedToChain":
+        toast.success("Offer submitted to chain!", {
+          ...notifyObj,
+          theme: "light",
+        });
         break;
     }
   };
@@ -186,109 +186,9 @@ function Core(props) {
     setSoffer(false);
   }
 
-  const handlebacktoCreate = () => {
-    setPriceco(priceco);
-    setAmountco(amountco);
-    setReview(0);
-  };
-
-  const handleSubmitOffer = async () => {
-    // await submitOfferToPolybase();
-    await submitOfferToChain();
-  };
-  // TODO
-  const submitOfferToChain = async () => {
-    const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
-    const chainName = chain.name;
-    // const paymentTokenAddress =
-    console.log({
-      offerid,
-      amountco,
-      priceco,
-      token,
-      location,
-      chainName,
-      contractAddress,
-    });
-
-    // const { config } = usePrepareContractWrite({
-    //   address: contractAddress,
-    //   abi: [
-    //     {
-    //     name: 'submitOffer',
-    //     type: 'function',
-    //     stateMutability: 'nonpayable',
-    //     inputs: [
-    //       {
-    //         "internalType": "string",
-    //         "name": "_offerID",
-    //         "type": "string"
-    //       },
-    //       {
-    //         "internalType": "uint256",
-    //         "name": "_amount",
-    //         "type": "uint256"
-    //       },
-    //       {
-    //         "internalType": "uint256",
-    //         "name": "_price",
-    //         "type": "uint256"
-    //       },
-    //       {
-    //         "internalType": "address",
-    //         "name": "_paymentToken",
-    //         "type": "address"
-    //       },
-    //       {
-    //         "internalType": "string",
-    //         "name": "_location",
-    //         "type": "string"
-    //       }
-    //     ],
-    //     outputs: [],
-    //     },
-    //   ],
-    //   functionName: 'submitOffer',
-    //   args: [string,uint256,uint256,address,string],
-    //   enabled: Boolean(account.address),
-    //   })
-    //   const { data, write } = useContractWrite(config)
-
-    //   const { isLoading, isSuccess } = useWaitForTransaction({
-    //   hash: data?.hash,
-    //   })
-  };
-
-  const submitOfferToPolybase = async () => {
-    const currentTime = new Date().getTime();
-    const offerObj = {
-      offerID: offerid,
-      sellerAccount: account.address,
-      amount: +amountco,
-      price: +priceco,
-      location: address,
-      submitTime: currentTime,
-      status: status,
-    };
-    console.log(offerObj);
-    const response = await fetch("/api/storeoffer", {
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      mode: "cors", // no-cors, *cors, same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: JSON.stringify(offerObj), // body data type must match "Content-Type" header
-    });
-
-    if (response.status == 201) {
-      notify("submitOfferSuccess");
-    } else if (response.status == 409) {
-      notify("submitOfferConflict");
-    }
-  };
+  const pullReviewFromSubmit = (reviewData) => {
+    setReview(reviewData);
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -684,76 +584,18 @@ function Core(props) {
           </div>
         </div>
       )}
-      {props.step == "CO" && review == 1 && (
-        <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
-          <div className="flex flex-row justify-between">
-            <div className="text-3xl">Offer Summary</div>
-            <div className="hover:cursor-pointer">
-              <BsInfoCircleFill />
-            </div>
-          </div>
-
-          <div className="mt-8 flex justify-between ">
-            <div>
-              <div className="md:px-4 py-1">Offer ID</div>
-            </div>
-            <div className="md:mr-4">{offerid}</div>
-          </div>
-          <div className="mt-4 flex justify-between ">
-            <div>
-              <div className="md:px-4 py-1">Seller ID</div>
-            </div>
-            <div
-              className="md:mr-4"
-              dangerouslySetInnerHTML={{ __html: formattedWallet }}
-            />
-          </div>
-
-          <div className="mt-4 flex justify-between ">
-            <div className="flex md:block">
-              <div className="md:px-4">Price Rate</div>
-            </div>
-            <div className="md:mr-4">
-              <p>${priceco} per KWH</p>
-            </div>
-          </div>
-          <div className="mt-6 flex justify-between ">
-            <div className="flex md:block">
-              <div className="md:px-4">Max Amount</div>
-            </div>
-            <div className=" md:mr-4">
-              <p>{amountco} KWH</p>
-            </div>
-          </div>
-
-          <div className="mt-6 md:px-4 ">
-            <div>Offer Location : </div>
-            <div className=" text-[#5285F6] mt-2 md:mt-2">{address}</div>
-          </div>
-          <div className="mt-4 md:px-4 md:flex">
-            <div>Estimated Revenue : </div>
-            <div className="md:ml-2 text-[#5285F6] mt-2 md:mt-0">
-              {revenue.toFixed(2)} <>USD</>
-            </div>
-          </div>
-          <div>
-            <div className="mt-6 text-center md:px-4 pb-2 flex justify-evenly space-x-4">
-              <div
-                onClick={handlebacktoCreate}
-                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6] w-full"
-              >
-                Back
-              </div>
-              <div
-                onClick={handleSubmitOffer}
-                className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full"
-              >
-                <Submitbtn />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {props.step == "CO" && review == 1 && <OfferSubmit 
+                    offerid={offerid}
+                    sellerid={formattedWallet}
+                    amountco={amountco}
+                    priceco={priceco}
+                    address={address}
+                    revenue={revenue.toFixed(2)}
+                    token={token}
+                    status={status}
+                    func={pullReviewFromSubmit}
+                    funcnotify={notify}
+                    />}
       {props.step == "MO" && <MyOffer />}
       {props.step == "TH" && <TXHistory />}
       <MapModal

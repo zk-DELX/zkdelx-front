@@ -2,76 +2,28 @@ import {
   usePrepareContractWrite, 
   useContractWrite, 
   useWaitForTransaction,
-  useNetwork 
+  useNetwork,
+  useAccount 
 } from 'wagmi'
+import { BsInfoCircleFill } from "react-icons/bs";
+import Submitbtn from "../../Buttons/Submitbtn";
 import Tokens from "../../../utils/TokensBalance";
+import ABI from "../../../src/abi.json";
+import useDebounce from "../../../utils/useDebounce";
 
-export function OfferSubmit(props) {
+function OfferSubmit(props) {
+  const account = useAccount();
+  const {chain, chains} = useNetwork();
+  const debouncedOfferid = useDebounce(props.offerid, 500);
+  const debouncedAmountco = useDebounce(+props.amountco, 500);
+  const debouncedPriceco = useDebounce(parseInt(+props.priceco * 100), 500);
+  const debouncedAddress = useDebounce(props.address, 500);
 
   const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
-  const tokenAddress = obtainTokenContractAddress();
-  const { config } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: [     
-      {
-      name: 'submitOffer',
-      type: 'function',
-      stateMutability: 'nonpayable',
-      inputs: [
-        {
-          "internalType": "string",
-          "name": "_offerID",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_price",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_paymentToken",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "_location",
-          "type": "string"
-        }
-      ],
-      outputs: [],
-      },
-    ],
-    functionName: 'submitOffer',
-    args: [offerid, amountco, priceco * 100, tokenAddress, location],
-    enabled: Boolean(account.address),
-  })
-  const { data, write } = useContractWrite(config)
-  const { isLoading, isSuccess } = useWaitForTransaction({
-  hash: data?.hash,
-  })
-  if (isLoading) notify("SubmittingToChain!");
-  if (isSuccess) notify("SubmitedToChain!");
-  
-  const handleSubmitOffer = async () => {
-    // await submitOfferToPolybase();
-    await submitOfferToChain();
-  }
-  // TODO
-  
-  const submitOfferToChain = async () => {
-  
-   }
-  
   const obtainTokenContractAddress = () => {
     var tokenAddress = "";
     if (account.status == "connected" && chain.id == 534353) {
-      switch (token) {
+      switch (props.token) {
         case "DAI": 
           tokenAddress = Tokens[0][0][0].address;
         case "USDT":
@@ -93,161 +45,142 @@ export function OfferSubmit(props) {
     }
     return tokenAddress;
   }
+  const tokenAddress = obtainTokenContractAddress();
+  const { config, error } = usePrepareContractWrite({
+    address: contractAddress,
+    abi: ABI,
+    chainId: chain.id,
+    functionName: 'submitOffer',
+    args: [debouncedOfferid, debouncedAmountco, debouncedPriceco, tokenAddress, debouncedAddress],
+    enabled: Boolean(debouncedAmountco),
+  });
+
+
+  const { data, write, isError } = useContractWrite(config);
+  const { isLoading, isSuccess } = useWaitForTransaction({
+  hash: data?.hash,
+  }) 
   
-  const submitOfferToPolybase = async () => {
+  // submit to Polybase
+  const handleSubmitOffer = async () => {
     const currentTime = new Date().getTime();
     const offerObj = {
-      offerID: offerid,
+      offerID: props.offerid,
       sellerAccount: account.address,
-      amount: +amountco,
-      price: +priceco,
-      location: address,
+      amount: +props.amountco,
+      price: +props.priceco,
+      location: props.address,
       submitTime: currentTime,
-      status: status,
+      status: props.status,
     };
     console.log(offerObj);
     const response = await fetch("/api/storeoffer", {
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      mode: "cors", // no-cors, *cors, same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(offerObj), // body data type must match "Content-Type" header
+      body: JSON.stringify(offerObj),
     });
   
     if (response.status == 201) {
-      notify("submitOfferSuccess");
+      props.funcnotify("submitToPolybaseSuccess");
     } else if (response.status == 409) {
-      notify("submitOfferConflict");
+      props.funcnotify("submitToPolybaseConflict");
     }
+  }
+  
+  const handlebacktoCreate = () => {
+    console.log("go back to create!");
+    props.func(0);
   };
 
   return (
     <div className="mt-[1rem] 2xl:mt-[6rem] w-[550px] font-epilogue bg-[#0D111C] border-[1px] border-[#1b2133] p-4 rounded-[15px]">
       <div className="flex flex-row justify-between">
-        <div className="text-3xl">Create an offer</div>
+        <div className="text-3xl">Offer Summary</div>
         <div className="hover:cursor-pointer">
           <BsInfoCircleFill />
         </div>
       </div>
-      <div className="text-center">
-        <div className="text-[#5285F6] mt-8">~{avg.toFixed(2)} USD/KWH</div>
-        <div className="text-gray-500 font-bold text-sm">{info}</div>
-      </div>
+
       <div className="mt-8 flex justify-between ">
         <div>
-          <div className="md:px-4 py-1">User ID</div>
+          <div className="md:px-4 py-1">Offer ID</div>
+        </div>
+        <div className="md:mr-4">{props.offerid}</div>
+      </div>
+      <div className="mt-4 flex justify-between ">
+        <div>
+          <div className="md:px-4 py-1">Seller ID</div>
         </div>
         <div
           className="md:mr-4"
-          dangerouslySetInnerHTML={{ __html: formattedWallet }}
+          dangerouslySetInnerHTML={{ __html: props.sellerid }}
         />
       </div>
-      <div className="md:flex justify-between mt-4 md:px-4">
-        <p className="pt-2">Token</p>
-        <div>
-          <Select
-            options={TokensList}
-            className="w-full min-w-[160px] text-gray-700 border border-[#1b2133] shadow-sm mt-2 md:mt-0"
-            classNamePrefix="Select"
-            components={{ Option, SingleValue }}
-            onChange={handleSelectChangeToken}
-            styles={{
-              control: (provided) => ({
-                ...provided,
-                backgroundColor: "#131A2A",
-                cursor: "pointer",
-              }),
-              option: (provided) => ({
-                ...provided,
-                color: "#000",
-              }),
-              singleValue: (provided) => ({
-                ...provided,
-                color: "#fff",
-              }),
-            }}
-          />
-        </div>
-      </div>
-      <div className="mt-6 md:flex justify-between ">
+
+      <div className="mt-4 flex justify-between ">
         <div className="flex md:block">
           <div className="md:px-4">Price Rate</div>
-          <div className="md:px-4 text-xs text-[#5285F6] ml-2 mt-2 md:ml-0 md:mt-0 pb-2 md:pb-0">
-            USD per KWH
-          </div>
         </div>
-        <div className="relative md:mr-4">
-          <input
-            type="text"
-            placeholder={priceco}
-            className="text-gray-300 bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] w-full md:px-4 py-2 pl-3 pr-10"
-            inputMode="numeric"
-            onInput={(e) => {
-              e.target.value = e.target.value.replace(/,/g, ".");
-            }}
-            onChange={(e) => setPriceco(e.target.value)}
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mr-2 mt-1">
-            <span className="text-gray-500 ">$</span>
-          </div>
+        <div className="md:mr-4">
+          <p>${props.priceco} per KWH</p>
         </div>
       </div>
-      <div className="mt-6 md:flex justify-between ">
+      <div className="mt-6 flex justify-between ">
         <div className="flex md:block">
           <div className="md:px-4">Max Amount</div>
-          <div className="md:px-4 text-xs text-[#5285F6] ml-2 mt-2 md:ml-0 md:mt-0 pb-2 md:pb-0">
-            Amount in KWH
-          </div>
         </div>
-        <div className="relative md:mr-4">
-          <input
-            type=""
-            placeholder={amountco}
-            inputMode="numeric"
-            className="text-gray-300 bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] w-full md:px-4 py-2 pl-3 pr-10"
-            onInput={(e) => {
-              e.target.value = e.target.value.replace(/,/g, ".");
-            }}
-            onChange={(e) => setAmountco(e.target.value)}
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mr-2 mt-1">
-            <span className="text-gray-500 ">KWH</span>
-          </div>
+        <div className=" md:mr-4">
+          <p>{props.amountco} KWH</p>
         </div>
       </div>
-      <div className="mt-6 md:flex justify-between md:mr-4">
-        <p className="md:px-4 py-2">Location</p>
-        <div
-          onClick={handleClickModal}
-          className="text-center bg-[#131A2A] rounded-[5px] border-[1px] border-[#1b2133] md:px-4 py-2 hover:cursor-pointer text-md"
-        >
-          <p className="">Select Location</p>
-        </div>
-      </div>
+
       <div className="mt-6 md:px-4 ">
-        <div>Selected Location : </div>
-        <div className=" text-[#5285F6] mt-2 md:mt-2">{address}</div>
+        <div>Offer Location : </div>
+        <div className=" text-[#5285F6] mt-2 md:mt-2">{props.address}</div>
       </div>
       <div className="mt-4 md:px-4 md:flex">
         <div>Estimated Revenue : </div>
         <div className="md:ml-2 text-[#5285F6] mt-2 md:mt-0">
-          {revenue.toFixed(2)} <>USD</>
+          {props.revenue} <>USD</>
         </div>
       </div>
       <div>
-        <div className="mt-6 text-center md:px-4 pb-2">
+        <div className="mt-6 text-center md:px-4 pb-2 flex justify-evenly space-x-4">
           <div
-            onClick={handleGoToSummary}
-            className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6]"
+            onClick={handlebacktoCreate}
+            className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl bg-[#26365A] text-blue-400 hover:text-[#5285F6] w-full"
           >
-            <Submitbtn />
+            Back
+          </div>
+          <div
+            disabled={!write}
+            onClick={() => {write?.(); handleSubmitOffer();}}
+            className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full"
+          >
+            <Submitbtn />           
           </div>
         </div>
+      </div>
+      <div>
+        {isSuccess && (
+          <div>
+            {props.funcnotify("submitedToChain")}
+            Successfully submitted !
+            <a 
+              href={`${chain.blockExplorers.etherscan.url}tx/${data?.hash}` } 
+              target="_blank"
+              className=" text-[#5285F6] mt-2 md:mt-2"
+              > Explore TX</a>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+export default OfferSubmit;
