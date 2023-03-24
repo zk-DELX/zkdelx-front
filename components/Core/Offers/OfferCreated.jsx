@@ -1,18 +1,111 @@
 import React, { useState } from "react";
+import { 
+  usePrepareContractWrite, 
+  useContractWrite, 
+  useWaitForTransaction,
+  useNetwork,
+  useAccount 
+} from 'wagmi'
 import {
   MdElectricCar,
   MdAttachMoney,
   MdOutlineElectricBolt,
 } from "react-icons/md";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
-import { GiPathDistance } from "react-icons/gi";
 import { BiCurrentLocation } from "react-icons/bi";
+import ABI from "../../../src/abi.json";
+import useDebounce from "../../../utils/useDebounce";
 
 function Offer(props) {
   const [isopen, setIsopen] = useState(false);
+  const account = useAccount();
+  const {chain, chains} = useNetwork();
+  const debouncedOfferid = useDebounce(props.id, 500);
 
   function totalCalc(price, amount) {
     return amount * price + amount * price * 0.015;
+  }
+  const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
+  const { config, error } = usePrepareContractWrite({
+    address: contractAddress,
+    abi: ABI,
+    chainId: chain.id,
+    functionName: 'deleteOffer',
+    args: [debouncedOfferid],
+    enabled: Boolean(debouncedOfferid),
+  });
+
+
+  const { data, write, isError } = useContractWrite(config);
+  console.log({config});
+  console.log({error});
+  const { isLoading, isSuccess } = useWaitForTransaction({
+  hash: data?.hash,
+  }) 
+
+  const notify = (opt) => {
+    const notifyObj = {
+      position: "top-center",
+      text: "19px",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    };
+    switch (opt) {
+      case "notFound":
+        toast.error(
+          "Offer not found !",
+          notifyObj
+        );
+        break;
+      case "deleteSuccessPolybase":
+        toast.success("Deleted offer in Polybase!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+      case "deleteSuccessChain":
+        toast.success("Deleted offer on-chain!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+    }
+  };
+
+  const handleDeleteOffer = async () => {
+    const currentTime = new Date().getTime();
+    const offerDeleteObj = {
+      offerID: props.id,
+      userAccount: account.address,
+      amount: props.amount,
+      price: props.price,
+      location: props.address,
+      updateTime: currentTime,
+    };
+    console.log(offerDeleteObj);
+    const response = await fetch("/api/deleteoffer", {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify(offerDeleteObj),
+    });
+  
+    if (response.status == 201) {
+      notify("deleteSuccessPolybase");
+    } else if (response.status == 404) {
+      notify("notFound");
+    }
   }
 
   return (
@@ -79,10 +172,26 @@ function Offer(props) {
           </div>
           <div className="flex justify-between mt-4 mx-2">
             <div className=""></div>
-            <div className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
-              Cancel Listing
+            <div 
+              disable={!write}
+              onClick={() => {write?.(); handleDeleteOffer();}}
+              className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
+              Delete Listing
             </div>
           </div>
+          <div>
+            {isSuccess && (
+              <div>
+                {notify("deleteSuccessChain")}
+                Successfully deleted !
+                <a 
+                  href={`${chain.blockExplorers.etherscan.url}tx/${data?.hash}` } 
+                  target="_blank"
+                  className=" text-[#5285F6] mt-2 md:mt-2"
+                  > Explore TX</a>
+          </div>
+        )}
+      </div>
         </div>
       )}
     </div>
