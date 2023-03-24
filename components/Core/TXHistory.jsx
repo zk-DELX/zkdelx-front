@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import OfferSold from "./Offers/OfferSold";
-import OfferBought from "./Offers/OfferSold";
+import OfferBought from "./Offers/OfferBought";
 import { useAccount } from "wagmi";
 import { BsInfoCircleFill } from "react-icons/bs";
 
