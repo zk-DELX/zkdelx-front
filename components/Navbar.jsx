@@ -52,7 +52,12 @@ function Navbar(props) {
             >
               Sell
             </p>
-            <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
+            <p
+              className={`hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] ${
+                props.step == "MO" ? "text-white" : "text-gray-400"
+              }`}
+              onClick={() => props.setStep("MO")}
+            >
               My Offers
             </p>
             <p className="hover:bg-[#1E2132] hover:cursor-pointer py-3 px-4 rounded-[15px] text-gray-400  ">
@@ -99,7 +104,9 @@ function Navbar(props) {
             <p className="mt-2" onClick={() => props.setStep("CO")}>
               Sell
             </p>
-            <p className="mt-2">My Offers</p>
+            <p className="mt-2" onClick={() => props.setStep("MO")}>
+              My Offers
+            </p>
             <p className="mt-2">TX History</p>
             <p className="mt-2">$DELX Token</p>
           </div>
