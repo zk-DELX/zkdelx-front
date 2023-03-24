@@ -72,7 +72,9 @@ function TXHistory() {
         </div>
         {offers == "" && page == "purchased" && (
           <div className="p-2 px-4 flex justify-center bg-[#0f1421] mt-6 py-8 rounded-[10px] border-[1px] border-[#26365A]">
-            <p className="text-sm md:text-lg">You have no purchased offers.</p>
+            <p className="text-sm md:text-lg">
+              You haven't purchased any offers yet.
+            </p>
           </div>
         )}
 
