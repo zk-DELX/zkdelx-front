@@ -77,12 +77,6 @@ function Offer(props) {
               </p>
             </div>
           </div>
-          <div className="flex justify-between mt-4 mx-2">
-            <div className=""></div>
-            <div className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
-              Cancel Listing
-            </div>
-          </div>
         </div>
       )}
     </div>
