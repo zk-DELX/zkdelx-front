@@ -6,8 +6,6 @@ import { BsInfoCircleFill } from "react-icons/bs";
 
 function MyOffers() {
   const account = useAccount();
-  const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
-  const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
 
   const [page, setPage] = useState("pending");
   const [offers, setOffers] = useState("");
@@ -22,16 +20,11 @@ function MyOffers() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const test = await fetch(
-          baseUrl +
-            "/queryinprocessoffers/0x4726a2FBcb2844beF75979dcFF50b3AC8F50AC53"
-        );
-        const response = await fetch(
-          baseUrl + "/queryinprocessoffers/" + account.address
-        );
+        const response = await fetch("/api/queryinprocessoffers/" + account.address);
         const data = await response.json();
         setOffers(data.buyOffers);
         setListings(data.sellOffers);
+        console.log(data);
       } catch {
         (e) => console.log(e);
       }

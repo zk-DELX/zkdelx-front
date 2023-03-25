@@ -3,30 +3,24 @@ module.exports = {
   reactStrictMode: true,
   swcMinify: true,
   async rewrites() {
+    const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
+    const URL = process.env.NEXT_PUBLIC_BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
     return [
       {
-        source: "/api/storeoffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/storeoffer",
+        source: "/api/:path*",
+        destination: URL + "/:path*",
       },
       {
-        source: "/api/canceloffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/canceloffer",
+        source: "/api/:path*/:myAccount",
+        destination: URL + "/:path*/:myAccount",
       },
       {
-        source: "/api/acceptoffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/acceptoffer",
+        source: "/api/:path*/:param1/:param2/:param3",
+        destination: URL + "/:path*/:param1/:param2/:param3",
       },
       {
-        source: "/api/deleteoffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/deleteoffer",
-      },
-      {
-        source: "/api/expireoffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/expireoffer",
-      },
-      {
-        source: "/api/completeOffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/completeOffer",
+        source: "/api/:path*/:param1/:param2/:param3/:param4",
+        destination: URL + "/:path*/:param1/:param2/:param3/:param4",
       },
     ];
   },

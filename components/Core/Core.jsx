@@ -21,8 +21,6 @@ import TXHistory from "./TXHistory";
 
 function Core(props) {
   const account = useAccount();
-  const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
-  const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
 
   //step-FO
   const [info, setInfo] = useState("real-time pool price avg.");
@@ -144,13 +142,9 @@ function Core(props) {
 
   async function fetchOffers(address, amount, price) {
     const addressFormatted = address.replace(/ /g, "-");
-    var backendUrl =
-      baseUrl +
-      `/searchoffers/${account.address}/${addressFormatted}/${amount}`;
+    var backendUrl =`/api/searchoffers/${account.address}/${addressFormatted}/${amount}`;
     if (price != undefined) {
-      backendUrl =
-        baseUrl +
-        `/searchoffers/${account.address}/${addressFormatted}/${amount}/${price}`;
+      backendUrl = `/api/searchoffers/${account.address}/${addressFormatted}/${amount}/${price}`;
     }
     console.log(backendUrl);
 
@@ -181,8 +175,8 @@ function Core(props) {
 
   function handleBackToSO() {
     setToken(token);
-    setAmount(0);
-    setPriceinp(0);
+    setAmount(amount);
+    setPriceinp(priceinp);
     setSoffer(false);
   }
 

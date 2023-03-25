@@ -6,8 +6,6 @@ import { BsInfoCircleFill } from "react-icons/bs";
 
 function TXHistory() {
   const account = useAccount();
-  const DEFAULT_BACKEND_BASE_URL = "https://zkdelx-backend.vercel.app";
-  const baseUrl = process.env.BACKEND_BASE_URL ?? DEFAULT_BACKEND_BASE_URL;
 
   const [page, setPage] = useState("purchased");
   const [offers, setOffers] = useState("");
@@ -16,13 +14,7 @@ function TXHistory() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const test = await fetch(
-          baseUrl +
-            "/queryhistoricaloffers/0x50aC41266d9D3445c707313873a9DB3be63a5257"
-        );
-        const response = await fetch(
-          baseUrl + "/queryhistoricaloffers/" + account.address
-        );
+        const response = await fetch("/api/queryhistoricaloffers/" + account.address);
         const data = await response.json();
         setOffers(data.boughtOffers);
         setListings(data.soldOffers);
