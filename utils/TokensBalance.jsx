@@ -52,7 +52,7 @@ const USDT_Scroll = [
     image: USDT,
     chainName: "Scroll",
     chainId: "1442",
-    address: "0x9698343E4F3FaCD609eE66B0CB7E24fEB9B7bD6c",
+    address: "0xCE542cc5575939fBbdfeD42F9174573ecBA733F4",
     decimal: 10 ** 18
   },
 ];

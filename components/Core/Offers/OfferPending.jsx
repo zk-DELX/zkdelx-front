@@ -22,7 +22,7 @@ function Offer(props) {
   const account = useAccount();
 
   function totalCalc(price, amount) {
-    return amount * price + amount * price * 0.015;
+    return amount * price ;
   }
 
   const notify = (opt) => {

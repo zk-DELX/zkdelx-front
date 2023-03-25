@@ -25,7 +25,7 @@ function Offer(props) {
   const debouncedOfferid = useDebounce(props.id, 500);
 
   function totalCalc(price, amount) {
-    return amount * price + amount * price * 0.015;
+    return amount * price ;
   }
   const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
   const { config, error } = usePrepareContractWrite({

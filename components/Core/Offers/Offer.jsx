@@ -13,6 +13,9 @@ import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { GiPathDistance } from "react-icons/gi";
 import { BiCurrentLocation } from "react-icons/bi";
 import ABI from "../../../src/abi.json";
+import Tokens from "../../../utils/TokensBalance";
+import scrollUSDCabi from "../../../src/scrollUSDCAbi.json";
+import scrollDAIabi from "../../../src/scrollDAIAbi.json";
 import useDebounce from "../../../utils/useDebounce";
 
 function Offer(props) {
@@ -22,6 +25,9 @@ function Offer(props) {
   const debouncedOfferid = useDebounce(props.id, 500);
   const debouncedAmount = useDebounce(+props.amount, 500);
   const debouncedPrice = useDebounce(+props.price * 100, 500);
+  const debouncedApproveAmount = useDebounce(+props.price * 100 * +props.amount, 500);
+
+  const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
 
   function formatAddress(address) {
     const addressArray = address.split(", ");
@@ -30,9 +36,69 @@ function Offer(props) {
   }
 
   function totalCalc(price, amount) {
-    return amount * price + amount * price * 0.015;
+    return amount * price ;
   }
-  const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
+
+  const obtainTokenProps = () => {
+    var tokenAddress = "";
+    var tokenDecimal = 0;
+    var tokenAbi;
+    if (account.status == "connected" && chain.id == 534353) {
+      switch (props.token) {
+        case "DAI": 
+          tokenAddress = Tokens[0][0][0].address;
+          tokenDecimal = Tokens[0][0][0].decimal;
+          tokenAbi = scrollDAIabi;
+          break;
+        case "USDT":
+          tokenAddress = Tokens[0][1][0].address;
+          tokenDecimal = Tokens[0][1][0].decimal;
+          break;
+        case "USDC":
+          tokenAddress = Tokens[0][2][0].address;
+          tokenDecimal = Tokens[0][2][0].decimal;
+          tokenAbi = scrollUSDCabi;
+          break;
+      }
+    }
+    // For PolyZK
+    if (account.status == "connected" && chain.id == 1442) {
+      switch (props.token) {
+        case "DAI": 
+          tokenAddress = Tokens[1][0][0].address;
+          tokenDecimal = Tokens[1][0][0].decimal;
+          break;
+        case "USDT":
+          tokenAddress = Tokens[1][1][0].address;
+          tokenDecimal = Tokens[1][1][0].decimal;
+          break;
+        case "USDC":
+          tokenAddress = Tokens[1][2][0].address;
+          tokenDecimal = Tokens[1][2][0].decimal;
+          break;
+      }
+    }
+    return {tokenAddress, tokenDecimal, tokenAbi};
+  }
+  const {tokenAddress, tokenDecimal, tokenAbi} = obtainTokenProps();
+
+  const { config: approveConfig, error: approveError } = usePrepareContractWrite({
+    address: tokenAddress,
+    abi: tokenAbi,
+    chainId: chain.id,
+    functionName: 'approve',
+    args: [contractAddress, +debouncedApproveAmount],
+    enabled: Boolean(debouncedApproveAmount),
+  });
+
+  console.log({approveConfig});
+  console.log({approveError});
+
+  const { data: approveData, write: approveWrite, isError: approveIsError } = useContractWrite(approveConfig);
+  const { isLoading: approveIsLoading, isSuccess: approveIsSuccess } = useWaitForTransaction({
+  hash: approveData?.hash,
+  }) 
+
   const { config, error } = usePrepareContractWrite({
     address: contractAddress,
     abi: ABI,
@@ -44,6 +110,11 @@ function Offer(props) {
 
   console.log({config});
   console.log({error});
+  
+  const { data, write, isError } = useContractWrite(config);
+  const { isLoading, isSuccess } = useWaitForTransaction({
+  hash: data?.hash,
+  }) 
 
   const notify = (opt) => {
     const notifyObj = {
@@ -78,11 +149,6 @@ function Offer(props) {
         break;
     }
   };
-
-  const { data, write, isError } = useContractWrite(config);
-  const { isLoading, isSuccess } = useWaitForTransaction({
-  hash: data?.hash,
-  }) 
 
   const handleBuyOffer = async () => {
     const currentTime = new Date().getTime();
@@ -175,8 +241,14 @@ function Offer(props) {
               </p>
             </div>
             <div 
-              disabled={!write}
-              onClick={() => {write?.(); handleBuyOffer();}}
+              disabled={!approveWrite}
+              onClick={() => {approveWrite?.();}}
+              className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
+              Approve
+            </div>
+            <div 
+              disabled={!approveIsSuccess}
+              onClick={() => {write?.();}}
               className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Buy this offer
             </div>

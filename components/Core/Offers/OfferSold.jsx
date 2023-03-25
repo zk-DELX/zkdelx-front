@@ -12,7 +12,7 @@ function Offer(props) {
   const [isopen, setIsopen] = useState(false);
 
   function totalCalc(price, amount) {
-    return amount * price + amount * price * 0.015;
+    return amount * price ;
   }
 
   return (

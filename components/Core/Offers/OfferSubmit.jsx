@@ -20,16 +20,19 @@ function OfferSubmit(props) {
   const debouncedAddress = useDebounce(props.address, 500);
 
   const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
-  const obtainTokenContractAddress = () => {
+  const obtainTokenProps = () => {
     var tokenAddress = "";
     if (account.status == "connected" && chain.id == 534353) {
       switch (props.token) {
         case "DAI": 
           tokenAddress = Tokens[0][0][0].address;
+          break;
         case "USDT":
           tokenAddress = Tokens[0][1][0].address;
+          break;
         case "USDC":
           tokenAddress = Tokens[0][2][0].address;
+          break;
       }
     }
     // For PolyZK
@@ -37,15 +40,18 @@ function OfferSubmit(props) {
       switch (token) {
         case "DAI": 
           tokenAddress = Tokens[1][0][0].address;
+          break;
         case "USDT":
           tokenAddress = Tokens[1][1][0].address;
+          break;
         case "USDC":
           tokenAddress = Tokens[1][2][0].address;
+          break;
       }
     }
     return tokenAddress;
   }
-  const tokenAddress = obtainTokenContractAddress();
+  const tokenAddress = obtainTokenProps();
   const { config, error } = usePrepareContractWrite({
     address: contractAddress,
     abi: ABI,
@@ -54,7 +60,7 @@ function OfferSubmit(props) {
     args: [debouncedOfferid, debouncedAmountco, debouncedPriceco, tokenAddress, debouncedAddress],
     enabled: Boolean(debouncedAmountco),
   });
-
+  console.log({tokenAddr: tokenAddress, tokenName: props.token});
 
   const { data, write, isError } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({

@@ -205,7 +205,7 @@ function Core(props) {
     }
 
     fetchData();
-    setTotal(amount * priceinp + amount * priceinp * 0.015);
+    setTotal(amount * priceinp);
     if (location != "--") {
       getAddressFromLatLng(location.split(" ")[0], location.split(" ")[1]);
     }
@@ -218,7 +218,7 @@ function Core(props) {
   }, [review]);
 
   useEffect(() => {
-    setRevenue(amountco * priceco - amountco * priceco * 0.015);
+    setRevenue(amountco * priceco);
   }, [amountco, priceco]);
 
   const Option = (props) => {
