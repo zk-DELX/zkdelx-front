@@ -9,8 +9,8 @@ module.exports = {
         destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/storeoffer",
       },
       {
-        source: "/api/calceloffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/calceloffer",
+        source: "/api/canceloffer",
+        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/canceloffer",
       },
       {
         source: "/api/acceptoffer",
@@ -25,8 +25,8 @@ module.exports = {
         destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/expireoffer",
       },
       {
-        source: "/api/confirmoffer",
-        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/confirmoffer",
+        source: "/api/completeOffer",
+        destination: process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/completeOffer",
       },
     ];
   },

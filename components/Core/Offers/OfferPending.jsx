@@ -1,18 +1,131 @@
 import React, { useState } from "react";
+import { 
+  usePrepareContractWrite, 
+  useContractWrite, 
+  useWaitForTransaction,
+  useNetwork,
+  useAccount 
+} from 'wagmi'
 import {
   MdElectricCar,
   MdAttachMoney,
   MdOutlineElectricBolt,
 } from "react-icons/md";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { GiPathDistance } from "react-icons/gi";
 import { BiCurrentLocation } from "react-icons/bi";
 
 function Offer(props) {
   const [isopen, setIsopen] = useState(false);
+  const account = useAccount();
 
   function totalCalc(price, amount) {
     return amount * price + amount * price * 0.015;
+  }
+
+  const notify = (opt) => {
+    const notifyObj = {
+      position: "top-center",
+      text: "19px",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    };
+    switch (opt) {
+      case "notFound":
+        toast.error(
+          "Offer not found !",
+          notifyObj
+        );
+        break;
+      case "cancelSuccessPolybase":
+        toast.success("Canceled on Polybase!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+      case "confirmSuccessPolybase":
+        toast.success("Confirmed on Polybase!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+      case "offerAlreadyConfirmed":
+        toast.error("Offer already confirmed!", notifyObj);
+        break;
+      case "cancelSuccessChain":
+        toast.success("Deleted offer on-chain!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+    }
+  };
+
+  const handleCancelOffer = async ()=> {
+    const currentTime = new Date().getTime();
+    const offerCancelObj = {
+      offerID: props.id,
+      userAccount: account.address,
+      amount: props.amount,
+      price: props.price,
+      location: props.address,
+      updateTime: currentTime,
+    };
+    console.log(offerCancelObj);
+    const response = await fetch("/api/canceloffer", {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify(offerCancelObj),
+    });
+  
+    if (response.status == 201) {
+      notify("cancelSuccessPolybase");
+    } else if (response.status == 404) {
+      notify("notFound");
+    }
+  }
+
+  const handleConfirmOffer = async ()=> {
+    const currentTime = new Date().getTime();
+    const offerConfirmObj = {
+      offerID: props.id,
+      userAccount: account.address,
+      amount: props.amount,
+      price: props.price,
+      location: props.address,
+      updateTime: currentTime,
+    };
+    console.log(offerConfirmObj);
+    const response = await fetch("/api/completeOffer", {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify(offerConfirmObj),
+    });
+  
+    if (response.status == 201) {
+      notify("confirmSuccessPolybase");
+    } else if (response.status == 400){
+      notify("offerAlreadyConfirmed");
+    } else if (response.status == 404) {
+      notify("notFound");
+    }
   }
 
   return (
@@ -78,10 +191,14 @@ function Offer(props) {
             </div>
           </div>
           <div className="flex justify-between mt-6 mx-2">
-            <div className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
+            <div 
+              onClick={handleCancelOffer}
+              className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
               Cancel Offer
             </div>
-            <div className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
+            <div 
+              onClick={handleConfirmOffer}
+              className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Mark as completed
             </div>
           </div>

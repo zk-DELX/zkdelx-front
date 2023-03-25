@@ -88,7 +88,7 @@ function MyOffers() {
             <OfferPending
               key={index}
               id={offer.data.id}
-              amount={offer.data.amount}
+              amount={offer.data.acceptAmount}
               price={offer.data.price}
               address={offer.data.location}
             />
