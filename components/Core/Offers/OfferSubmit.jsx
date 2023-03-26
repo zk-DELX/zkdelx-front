@@ -21,7 +21,7 @@ function OfferSubmit(props) {
   const {chain, chains} = useNetwork();
   const debouncedOfferid = useDebounce(props.offerid, 500);
   const debouncedAmountco = useDebounce(+props.amountco, 500);
-  const debouncedPriceco = useDebounce(parseInt(+props.priceco * 100), 500);
+  const debouncedPriceco = useDebounce(+props.priceco, 500);
   const debouncedAddress = useDebounce(props.address, 500);
 
   const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
@@ -72,7 +72,7 @@ function OfferSubmit(props) {
     return {tokenAddress, tokenDecimal, tokenAbi};
   }
   const {tokenAddress, tokenDecimal, tokenAbi} = obtainTokenProps();
-  const bnAmount = BigNumber.from(String(debouncedAmountco * tokenDecimal));
+  const bnAmount = BigNumber.from(String(debouncedAmountco));
   const bnPrice = BigNumber.from(String(debouncedPriceco * tokenDecimal));
 
   const { config, error } = usePrepareContractWrite({
@@ -83,7 +83,7 @@ function OfferSubmit(props) {
     args: [debouncedOfferid, bnAmount, bnPrice, tokenAddress, debouncedAddress],
     enabled: Boolean(debouncedAmountco),
   });
-  console.log({tokenAddr: tokenAddress, tokenName: props.token});
+  console.log({config});
 
   const { data, write, isError } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({

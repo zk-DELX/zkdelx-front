@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   usePrepareContractWrite, 
   useContractWrite, 
   useWaitForTransaction,
   useNetwork,
   useAccount 
-} from 'wagmi'
+} from 'wagmi';
 import {
   MdElectricCar,
   MdAttachMoney,
@@ -16,14 +16,37 @@ import "react-toastify/dist/ReactToastify.css";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { GiPathDistance } from "react-icons/gi";
 import { BiCurrentLocation } from "react-icons/bi";
+import ABI from "../../../src/abi.json";
+import useDebounce from "../../../utils/useDebounce";
 
 function Offer(props) {
   const [isopen, setIsopen] = useState(false);
   const account = useAccount();
+  const {chain, chains} = useNetwork();
+  const debouncedOfferid = useDebounce(props.id, 500);
 
   function totalCalc(price, amount) {
     return amount * price ;
   }
+
+  const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
+  const { config: configConfirm, error: errorConfirm } = usePrepareContractWrite({
+    address: contractAddress,
+    abi: ABI,
+    chainId: chain.id,
+    functionName: 'completeOffer',
+    args: [debouncedOfferid],
+    enabled: Boolean(debouncedOfferid),
+  });
+
+
+  const { data: dataConfirm, write: writeConfirm, isError: isConfirmError } = useContractWrite(configConfirm);
+  console.log({configConfirm});
+  console.log({errorConfirm});
+  const { isLoading: isConfirmLoading, isSuccess: isConfirmSuccess } = useWaitForTransaction({
+  hash: dataConfirm?.hash,
+  }) 
+
 
   const notify = (opt) => {
     const notifyObj = {
@@ -52,6 +75,12 @@ function Offer(props) {
         break;
       case "confirmSuccessPolybase":
         toast.success("Confirmed on Polybase!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+      case "confirmSuccessChain":
+        toast.success("Confirmed on chain!", {
           ...notifyObj,
           theme: "light",
         });
@@ -96,6 +125,13 @@ function Offer(props) {
       notify("notFound");
     }
   }
+
+  useEffect(() => {
+      if (isConfirmSuccess) {
+        handleConfirmOffer();
+      }
+    }
+  );
 
   const handleConfirmOffer = async ()=> {
     const currentTime = new Date().getTime();
@@ -197,7 +233,8 @@ function Offer(props) {
               Cancel Offer
             </div>
             <div 
-              onClick={handleConfirmOffer}
+              disable={!writeConfirm}
+              onClick={() => writeConfirm?.()}
               className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Mark as completed
             </div>

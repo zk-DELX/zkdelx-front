@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { 
   usePrepareContractWrite, 
   useContractWrite, 
   useWaitForTransaction,
   useNetwork,
   useAccount 
-} from 'wagmi'
+} from 'wagmi';
 import {
   MdElectricCar,
   MdAttachMoney,
@@ -78,6 +78,14 @@ function Offer(props) {
         break;
     }
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      handleDeleteOffer();
+    }
+  }
+  );
+
 
   const handleDeleteOffer = async () => {
     const currentTime = new Date().getTime();
@@ -174,7 +182,7 @@ function Offer(props) {
             <div className=""></div>
             <div 
               disable={!write}
-              onClick={() => {write?.(); handleDeleteOffer();}}
+              onClick={() => write?.()}
               className="p-2  bg-red-600 text-white  rounded-[10px] mb-1">
               Delete Listing
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { 
   usePrepareContractWrite, 
   useContractWrite, 
@@ -87,33 +87,32 @@ function Offer(props) {
     return {tokenAddress, tokenDecimal, tokenAbi};
   }
   const {tokenAddress, tokenDecimal, tokenAbi} = obtainTokenProps();
-  const bnAmount = BigNumber.from(String(debouncedAmount * tokenDecimal));
+  const bnApproveAmount = BigNumber.from(String(debouncedApproveAmount * tokenDecimal));
 
   const { config: approveConfig, error: approveError } = usePrepareContractWrite({
     address: tokenAddress,
     abi: tokenAbi,
     chainId: chain.id,
     functionName: 'approve',
-    args: [contractAddress, bnAmount],
+    args: [contractAddress, bnApproveAmount],
     enabled: Boolean(debouncedApproveAmount),
   });
 
   console.log({approveConfig});
   console.log({approveError});
-  console.log({bnAmount});
+  console.log({bnApproveAmount});
 
   const { data: approveData, write: approveWrite, isError: approveIsError } = useContractWrite(approveConfig);
   const { isLoading: approveIsLoading, isSuccess: approveIsSuccess } = useWaitForTransaction({
   hash: approveData?.hash,
   }) 
 
-  const buyAmount = BigNumber.from(String(debouncedAmount * tokenDecimal));
   const { config, error } = usePrepareContractWrite({
     address: contractAddress,
     abi: ABI,
     chainId: chain.id,
     functionName: 'buyOffer',
-    args: [debouncedOfferid, buyAmount],
+    args: [debouncedOfferid, debouncedAmount],
     enabled: Boolean(debouncedOfferid),
   });
 
@@ -165,6 +164,12 @@ function Offer(props) {
     }
   };
 
+  useEffect(() => {
+    if (isSuccess) {
+      handleBuyOffer();
+    }
+  }
+  );
   const handleBuyOffer = async () => {
     const currentTime = new Date().getTime();
     const offerBuyObj = {
@@ -262,7 +267,7 @@ function Offer(props) {
               Approve
             </div>
             <div 
-              disabled={!approveIsSuccess}
+              disabled={!write}
               onClick={() => {write?.();}}
               className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Buy this offer
