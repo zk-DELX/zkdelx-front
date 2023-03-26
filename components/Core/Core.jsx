@@ -191,7 +191,7 @@ function Core(props) {
         location.split(" ")[1]
       );
       try {
-        const res = await fetch(baseUrl + "/queryprice/" + state);
+        const res = await fetch(`/api/queryprice/${state}`);
         const newData = await res.json();
         if (res.status === 500) {
           console.log("no price found for this location");
