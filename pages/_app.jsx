@@ -53,6 +53,32 @@ const polyzk = {
   },
 };
 
+
+const taiko = {
+  id: 167003,
+  name: "Taiko A1 (Taiko)",
+  network: "Taiko A1 (Taiko)",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Ethereum",
+    symbol: "ETH",
+  },
+  rpcUrls: {
+    public: { http: ["https://l2rpc.a1.taiko.xyz"] },
+    default: { http: ["https://l2rpc.a1.taiko.xyz"] },
+  },
+  blockExplorers: {
+    etherscan: {
+      name: "taiko explore",
+      url: " https://l2explorer.a1.taiko.xyz/",
+    },
+    default: {
+      name: "taiko explore",
+      url: "https://l2explorer.a1.taiko.xyz/",
+    },
+  },
+};
+
 const defaultChains = [
   {
     ...scroll_alpha_testnet,
@@ -63,6 +89,11 @@ const defaultChains = [
     ...polyzk,
     iconUrl:
       "https://github.com/zk-DELX/zkdelx-front/blob/main/assets/polygon.png?raw=true",
+  },
+  {
+    ...taiko,
+    iconUrl:
+      "https://github.com/zk-DELX/zkdelx-front/blob/main/assets/taiko.png?raw=true",
   },
 ];
 
