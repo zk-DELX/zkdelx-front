@@ -6,10 +6,15 @@ import {
   useAccount 
 } from 'wagmi'
 import { BsInfoCircleFill } from "react-icons/bs";
+import { ethers, BigNumber } from "ethers";
 import Submitbtn from "../../Buttons/Submitbtn";
 import Tokens from "../../../utils/TokensBalance";
 import ABI from "../../../src/abi.json";
 import useDebounce from "../../../utils/useDebounce";
+import scrollUSDCabi from "../../../src/scrollUSDCAbi.json";
+import scrollDAIabi from "../../../src/scrollDAIAbi.json";
+import scrollUSDTabi from "../../../src/scrollUSDTAbi.json";
+import { useEffect } from 'react';
 
 function OfferSubmit(props) {
   const account = useAccount();
@@ -20,44 +25,62 @@ function OfferSubmit(props) {
   const debouncedAddress = useDebounce(props.address, 500);
 
   const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
+
   const obtainTokenProps = () => {
     var tokenAddress = "";
+    var tokenDecimal = 0;
+    var tokenAbi;
     if (account.status == "connected" && chain.id == 534353) {
       switch (props.token) {
         case "DAI": 
           tokenAddress = Tokens[0][0][0].address;
+          tokenDecimal = Tokens[0][0][0].decimal;
+          tokenAbi = scrollDAIabi;
           break;
         case "USDT":
           tokenAddress = Tokens[0][1][0].address;
+          tokenDecimal = Tokens[0][1][0].decimal;
+          tokenAbi = scrollUSDTabi;
           break;
         case "USDC":
           tokenAddress = Tokens[0][2][0].address;
+          tokenDecimal = Tokens[0][2][0].decimal;
+          tokenAbi = scrollUSDCabi;
           break;
       }
     }
     // For PolyZK
     if (account.status == "connected" && chain.id == 1442) {
-      switch (token) {
+      switch (props.token) {
         case "DAI": 
           tokenAddress = Tokens[1][0][0].address;
+          tokenDecimal = Tokens[1][0][0].decimal;
+          tokenAbi = polybaseDAIabi;
           break;
         case "USDT":
           tokenAddress = Tokens[1][1][0].address;
+          tokenDecimal = Tokens[1][1][0].decimal;
+          tokenAbi = polybaseUSDTabi;
           break;
         case "USDC":
           tokenAddress = Tokens[1][2][0].address;
+          tokenDecimal = Tokens[1][2][0].decimal;
+          tokenAbi = polybaseUSDCabi;
           break;
       }
     }
-    return tokenAddress;
+    return {tokenAddress, tokenDecimal, tokenAbi};
   }
-  const tokenAddress = obtainTokenProps();
+  const {tokenAddress, tokenDecimal, tokenAbi} = obtainTokenProps();
+  const bnAmount = BigNumber.from(String(debouncedAmountco * tokenDecimal));
+  const bnPrice = BigNumber.from(String(debouncedPriceco * tokenDecimal));
+
   const { config, error } = usePrepareContractWrite({
     address: contractAddress,
     abi: ABI,
     chainId: chain.id,
     functionName: 'submitOffer',
-    args: [debouncedOfferid, debouncedAmountco, debouncedPriceco, tokenAddress, debouncedAddress],
+    args: [debouncedOfferid, bnAmount, bnPrice, tokenAddress, debouncedAddress],
     enabled: Boolean(debouncedAmountco),
   });
   console.log({tokenAddr: tokenAddress, tokenName: props.token});
@@ -67,6 +90,13 @@ function OfferSubmit(props) {
   hash: data?.hash,
   }) 
   
+  useEffect(() => {
+    if (isSuccess) {
+      handleSubmitOffer();
+    }
+  }
+  );
+
   // submit to Polybase
   const handleSubmitOffer = async () => {
     const currentTime = new Date().getTime();
@@ -165,7 +195,7 @@ function OfferSubmit(props) {
           </div>
           <div
             disabled={!write}
-            onClick={() => {write?.(); handleSubmitOffer();}}
+            onClick={() => write?.()}
             className="py-3 px-4 rounded-[10px] hover:cursor-pointer font-kanit font-bold text-xl text-white bg-[#3b5dae] hover:text-[#5285F6] w-full"
           >
             <Submitbtn />           

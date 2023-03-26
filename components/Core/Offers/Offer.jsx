@@ -6,6 +6,7 @@ import {
   useNetwork,
   useAccount 
 } from 'wagmi'
+import { ethers, BigNumber } from "ethers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdElectricCar, MdAttachMoney } from "react-icons/md";
@@ -16,6 +17,7 @@ import ABI from "../../../src/abi.json";
 import Tokens from "../../../utils/TokensBalance";
 import scrollUSDCabi from "../../../src/scrollUSDCAbi.json";
 import scrollDAIabi from "../../../src/scrollDAIAbi.json";
+import scrollUSDTabi from "../../../src/scrollUSDTAbi.json";
 import useDebounce from "../../../utils/useDebounce";
 
 function Offer(props) {
@@ -25,7 +27,7 @@ function Offer(props) {
   const debouncedOfferid = useDebounce(props.id, 500);
   const debouncedAmount = useDebounce(+props.amount, 500);
   const debouncedPrice = useDebounce(+props.price * 100, 500);
-  const debouncedApproveAmount = useDebounce(+props.price * 100 * +props.amount, 500);
+  const debouncedApproveAmount = useDebounce(+props.price * +props.amount, 500);
 
   const contractAddress = process.env.NEXT_PUBLIC_MARKET_CONTRACT_ADDRESS;
 
@@ -53,6 +55,7 @@ function Offer(props) {
         case "USDT":
           tokenAddress = Tokens[0][1][0].address;
           tokenDecimal = Tokens[0][1][0].decimal;
+          tokenAbi = scrollUSDTabi;
           break;
         case "USDC":
           tokenAddress = Tokens[0][2][0].address;
@@ -67,44 +70,50 @@ function Offer(props) {
         case "DAI": 
           tokenAddress = Tokens[1][0][0].address;
           tokenDecimal = Tokens[1][0][0].decimal;
+          tokenAbi = polybaseDAIabi;
           break;
         case "USDT":
           tokenAddress = Tokens[1][1][0].address;
           tokenDecimal = Tokens[1][1][0].decimal;
+          tokenAbi = polybaseUSDTabi;
           break;
         case "USDC":
           tokenAddress = Tokens[1][2][0].address;
           tokenDecimal = Tokens[1][2][0].decimal;
+          tokenAbi = polybaseUSDCabi;
           break;
       }
     }
     return {tokenAddress, tokenDecimal, tokenAbi};
   }
   const {tokenAddress, tokenDecimal, tokenAbi} = obtainTokenProps();
+  const bnAmount = BigNumber.from(String(debouncedAmount * tokenDecimal));
 
   const { config: approveConfig, error: approveError } = usePrepareContractWrite({
     address: tokenAddress,
     abi: tokenAbi,
     chainId: chain.id,
     functionName: 'approve',
-    args: [contractAddress, +debouncedApproveAmount],
+    args: [contractAddress, bnAmount],
     enabled: Boolean(debouncedApproveAmount),
   });
 
   console.log({approveConfig});
   console.log({approveError});
+  console.log({bnAmount});
 
   const { data: approveData, write: approveWrite, isError: approveIsError } = useContractWrite(approveConfig);
   const { isLoading: approveIsLoading, isSuccess: approveIsSuccess } = useWaitForTransaction({
   hash: approveData?.hash,
   }) 
 
+  const buyAmount = BigNumber.from(String(debouncedAmount * tokenDecimal));
   const { config, error } = usePrepareContractWrite({
     address: contractAddress,
     abi: ABI,
     chainId: chain.id,
     functionName: 'buyOffer',
-    args: [debouncedOfferid, +debouncedAmount],
+    args: [debouncedOfferid, buyAmount],
     enabled: Boolean(debouncedOfferid),
   });
 
@@ -143,6 +152,12 @@ function Offer(props) {
         break;
       case "buySuccessChain":
         toast.success("Bought offer on-chain!", {
+          ...notifyObj,
+          theme: "light",
+        });
+        break;
+      case "approveSuccess":
+        toast.success("Approve success!", {
           ...notifyObj,
           theme: "light",
         });
@@ -252,6 +267,19 @@ function Offer(props) {
               className="p-2  bg-[#26365A] text-blue-400 hover:text-[#5285F6] rounded-[10px] mb-1">
               Buy this offer
             </div>
+          </div>
+          <div>
+            {approveIsSuccess && (
+              <div>
+                {notify("approveSuccess")}
+                Successfully approved !
+                <a 
+                  href={`${chain.blockExplorers.etherscan.url}tx/${approveData?.hash}` } 
+                  target="_blank"
+                  className=" text-[#5285F6] mt-2 md:mt-2"
+                  > Explore TX</a>
+            </div>
+            )}
           </div>
           <div>
             {isSuccess && (
