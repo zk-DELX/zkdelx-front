@@ -81,6 +81,11 @@ const taiko = {
 
 const defaultChains = [
   {
+    ...taiko,
+    iconUrl:
+      "https://github.com/zk-DELX/zkdelx-front/blob/main/assets/taiko.png?raw=true",
+  },
+  {
     ...scroll_alpha_testnet,
     iconUrl:
       "https://raw.githubusercontent.com/zk-DELX/zkdelx-front/main/assets/scroll.png",
@@ -89,11 +94,6 @@ const defaultChains = [
     ...polyzk,
     iconUrl:
       "https://github.com/zk-DELX/zkdelx-front/blob/main/assets/polygon.png?raw=true",
-  },
-  {
-    ...taiko,
-    iconUrl:
-      "https://github.com/zk-DELX/zkdelx-front/blob/main/assets/taiko.png?raw=true",
   },
 ];
 
