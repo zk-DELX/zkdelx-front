@@ -1,3 +1,3 @@
 Deployed at:
 
-https://zkdelx-front-1.vercel.app/
+https://zkdelx-front.vercel.app/
