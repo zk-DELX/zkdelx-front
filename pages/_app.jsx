@@ -55,26 +55,26 @@ const polyzk = {
 
 
 const taiko = {
-  id: 167003,
-  name: "Taiko A1 (Taiko)",
-  network: "Taiko A1 (Taiko)",
+  id: 167005,
+  name: "Taiko Testnet (Taiko)",
+  network: "Taiko Testnet (Taiko)",
   nativeCurrency: {
     decimals: 18,
     name: "Ethereum",
     symbol: "ETH",
   },
   rpcUrls: {
-    public: { http: ["https://l2rpc.a1.taiko.xyz"] },
-    default: { http: ["https://l2rpc.a1.taiko.xyz"] },
+    public: { http: ["https://rpc.test.taiko.xyz"] },
+    default: { http: ["https://rpc.test.taiko.xyz"] },
   },
   blockExplorers: {
     etherscan: {
       name: "taiko explore",
-      url: " https://l2explorer.a1.taiko.xyz/",
+      url: " https://explorer.test.taiko.xyz",
     },
     default: {
       name: "taiko explore",
-      url: "https://l2explorer.a1.taiko.xyz/",
+      url: "https://explorer.test.taiko.xyz",
     },
   },
 };
